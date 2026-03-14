@@ -58,6 +58,9 @@ class LineArtEngine {
     final w = gray.width;
     final h = gray.height;
     final out = img.Image(width: w, height: h, numChannels: 4);
+    // Explicitly zero all pixels so the 1-pixel border (skipped by Sobel)
+    // is guaranteed transparent, regardless of allocator behavior.
+    img.fill(out, color: img.ColorRgba8(0, 0, 0, 0));
 
     // Sobel kernels
     const gx = [
