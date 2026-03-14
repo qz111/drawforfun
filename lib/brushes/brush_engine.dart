@@ -7,8 +7,6 @@ import 'stroke.dart';
 class BrushEngine {
   BrushEngine._();
 
-  static final _rng = Random();
-
   /// Entry point: dispatches to the correct brush painter.
   static void paint(Canvas canvas, Stroke stroke) {
     if (stroke.points.isEmpty) return;
@@ -35,6 +33,7 @@ class BrushEngine {
   // PENCIL — thin, slightly rough strokes with opacity jitter
   // ---------------------------------------------------------------------------
   static void _paintPencil(Canvas canvas, Stroke stroke) {
+    final rng = Random(stroke.hashCode);  // deterministic: same stroke = same result
     if (stroke.points.length < 2) {
       canvas.drawCircle(
         stroke.points.first,
@@ -45,7 +44,7 @@ class BrushEngine {
     }
 
     for (int i = 0; i < stroke.points.length - 1; i++) {
-      final opacity = 0.7 + _rng.nextDouble() * 0.3;
+      final opacity = 0.7 + rng.nextDouble() * 0.3;
       final paint = Paint()
         ..color = stroke.color.withValues(alpha: opacity)
         ..strokeWidth = 3.0
@@ -149,19 +148,20 @@ class BrushEngine {
   // SPLATTER — random dots scattered around each touch point
   // ---------------------------------------------------------------------------
   static void _paintSplatter(Canvas canvas, Stroke stroke) {
+    final rng = Random(stroke.hashCode);  // deterministic per stroke
     for (final point in stroke.points) {
-      if (_rng.nextInt(3) != 0) continue;
+      if (rng.nextInt(3) != 0) continue;
 
-      final dotCount = 8 + _rng.nextInt(7);
+      final dotCount = 8 + rng.nextInt(7);
       for (int i = 0; i < dotCount; i++) {
-        final angle = _rng.nextDouble() * 2 * pi;
-        final distance = 8 + _rng.nextDouble() * 30;
+        final angle = rng.nextDouble() * 2 * pi;
+        final distance = 8 + rng.nextDouble() * 30;
         final dotOffset = Offset(
           point.dx + distance * cos(angle),
           point.dy + distance * sin(angle),
         );
-        final dotRadius = 1.5 + _rng.nextDouble() * 3.0;
-        final opacity = 0.6 + _rng.nextDouble() * 0.3;
+        final dotRadius = 1.5 + rng.nextDouble() * 3.0;
+        final opacity = 0.6 + rng.nextDouble() * 0.3;
         canvas.drawCircle(
           dotOffset,
           dotRadius,
