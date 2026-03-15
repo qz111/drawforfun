@@ -106,9 +106,9 @@ class _ColoringScreenState extends State<ColoringScreen> {
             child: const Text('Save & Switch'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Navigator.pop(ctx);
-              _navigateToTemplateScreen();
+              await _navigateToTemplateScreen();
             },
             child: const Text('Discard & Switch', style: TextStyle(color: Colors.orange)),
           ),
@@ -232,13 +232,13 @@ class _ColoringScreenState extends State<ColoringScreen> {
   void _showClearDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Text('Clear drawing?'),
         content: const Text('This will erase everything. Are you sure?'),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(ctx),
             child: const Text('Cancel'),
           ),
           TextButton(
@@ -248,7 +248,7 @@ class _ColoringScreenState extends State<ColoringScreen> {
                 _lineArtBytes = null;       // bug fix: was not clearing photo overlay
                 _activeTemplatePath = null;  // clear template overlay too
               });
-              Navigator.pop(context);
+              Navigator.pop(ctx);
             },
             child: const Text('Clear', style: TextStyle(color: Colors.red)),
           ),
