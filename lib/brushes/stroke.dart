@@ -21,4 +21,27 @@ class Stroke {
       points: [...points, point],
     );
   }
+
+  /// Serializes this stroke to a JSON-compatible map.
+  /// JSON key 'brushType' maps to the Dart field [type].
+  Map<String, dynamic> toJson() => {
+        'brushType': type.name,
+        'color': color.value,
+        'points': points
+            .map((p) => {'dx': p.dx, 'dy': p.dy})
+            .toList(),
+      };
+
+  /// Restores a [Stroke] from the map produced by [toJson].
+  /// Returns null-safe: unknown brushType names throw [ArgumentError] via [byName].
+  static Stroke fromJson(Map<String, dynamic> json) => Stroke(
+        type: BrushType.values.byName(json['brushType'] as String),
+        color: Color(json['color'] as int),
+        points: (json['points'] as List)
+            .map((p) => Offset(
+                  (p['dx'] as num).toDouble(),
+                  (p['dy'] as num).toDouble(),
+                ))
+            .toList(),
+      );
 }
