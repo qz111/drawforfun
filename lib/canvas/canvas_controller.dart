@@ -63,4 +63,18 @@ class CanvasController extends ChangeNotifier {
     _activeColor = color;
     notifyListeners();
   }
+
+  /// Returns all committed strokes serialized as a JSON-compatible list.
+  List<Map<String, dynamic>> strokesToJson() =>
+      _strokes.map((s) => s.toJson()).toList();
+
+  /// Replaces the stroke history with [strokes] and notifies listeners.
+  /// Clears any in-progress stroke.
+  void loadStrokes(List<Stroke> strokes) {
+    _strokes
+      ..clear()
+      ..addAll(strokes);
+    _currentStroke = null;
+    notifyListeners();
+  }
 }
