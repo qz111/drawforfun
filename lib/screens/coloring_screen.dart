@@ -30,13 +30,15 @@ class _ColoringScreenState extends State<ColoringScreen> {
   Future<void> _pickAndConvertPhoto() async {
     final result = await FilePicker.platform.pickFiles(type: FileType.image);
     if (result == null || result.files.single.bytes == null) return;
+    if (!mounted) return;
 
     setState(() => _isProcessing = true);
-    final lineArt = await LineArtEngine.convert(result.files.single.bytes!);
-    setState(() {
-      _lineArtBytes = lineArt;
-      _isProcessing = false;
-    });
+    try {
+      final lineArt = await LineArtEngine.convert(result.files.single.bytes!);
+      if (mounted) setState(() => _lineArtBytes = lineArt);
+    } finally {
+      if (mounted) setState(() => _isProcessing = false);
+    }
   }
 
   Future<void> _saveArtwork() async {
@@ -50,6 +52,7 @@ class _ColoringScreenState extends State<ColoringScreen> {
     await SaveManager.saveToGallery(bytes);
 
     if (mounted) {
+      // Gallery save (iOS only) failures are silent — in-app save is the primary path.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(path != null ? 'Saved!' : 'Save failed'),
@@ -68,10 +71,10 @@ class _ColoringScreenState extends State<ColoringScreen> {
         foregroundColor: Colors.white,
         title: const Text('Draw For Fun', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
-          IconButton(icon: const Icon(Icons.photo_library), onPressed: _pickAndConvertPhoto, tooltip: 'Load photo'),
+          IconButton(icon: const Icon(Icons.photo_library), onPressed: _isProcessing ? null : _pickAndConvertPhoto, tooltip: 'Load photo'),
           IconButton(icon: const Icon(Icons.undo), onPressed: _controller.undo, tooltip: 'Undo'),
-          IconButton(icon: const Icon(Icons.delete_outline), onPressed: () => _showClearDialog(context), tooltip: 'Clear'),
-          IconButton(icon: const Icon(Icons.save_alt), onPressed: _saveArtwork, tooltip: 'Save'),
+          IconButton(icon: const Icon(Icons.delete_outline), onPressed: _isProcessing ? null : () => _showClearDialog(context), tooltip: 'Clear'),
+          IconButton(icon: const Icon(Icons.save_alt), onPressed: _isProcessing ? null : _saveArtwork, tooltip: 'Save'),
         ],
       ),
       body: Column(
