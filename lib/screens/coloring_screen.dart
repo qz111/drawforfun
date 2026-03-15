@@ -1,5 +1,5 @@
-import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '../canvas/canvas_controller.dart';
 import '../canvas/canvas_stack_widget.dart';
@@ -42,13 +42,18 @@ class _ColoringScreenState extends State<ColoringScreen> {
   }
 
   Future<void> _pickAndConvertPhoto() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    // withData: true is required on Windows/desktop — bytes is null otherwise.
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
     if (result == null || result.files.single.bytes == null) return;
     if (!mounted) return;
 
     setState(() => _isProcessing = true);
     try {
-      final lineArt = await LineArtEngine.convert(result.files.single.bytes!);
+      // Run heavy Sobel computation in a background isolate so the spinner renders.
+      final lineArt = await compute(LineArtEngine.convert, result.files.single.bytes!);
       if (mounted) {
         setState(() {
           _lineArtBytes = lineArt;
