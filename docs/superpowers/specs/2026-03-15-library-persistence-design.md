@@ -82,14 +82,16 @@ Invariant: exactly one of `overlayAssetPath` or `overlayFilePath` is non-null.
 `lib/brushes/stroke.dart` gains `toJson` / `fromJson`:
 
 ```dart
+// Note: the Stroke field is named 'type' (BrushType type), not 'brushType'.
+// The JSON key is 'brushType' for clarity; the Dart accessor is 'type'.
 Map<String, dynamic> toJson() => {
-  'brushType': brushType.name,
+  'brushType': type.name,   // 'type' is the Stroke field name
   'color': color.value,
   'points': points.map((p) => {'dx': p.dx, 'dy': p.dy}).toList(),
 };
 
 static Stroke fromJson(Map<String, dynamic> json) => Stroke(
-  brushType: BrushType.values.byName(json['brushType'] as String),
+  type: BrushType.values.byName(json['brushType'] as String),
   color: Color(json['color'] as int),
   points: (json['points'] as List)
       .map((p) => Offset((p['dx'] as num).toDouble(), (p['dy'] as num).toDouble()))
@@ -169,12 +171,13 @@ Scaffold
 
 **Upload flow (tap "+" button):**
 1. `FilePicker.platform.pickFiles(type: FileType.image, withData: true)`
-2. If bytes null → return
-3. Show loading indicator
-4. `compute(LineArtEngine.convert, bytes)` → `overlayPng`
-5. If null → show error snackbar, return
-6. `DrawingRepository.createUploadEntry(overlayPng)` → `entry`
-7. `Navigator.push(ColoringScreen(entry: entry))`
+2. If `result == null || result.files.single.bytes == null` → return
+3. Show loading indicator (`setState(() => _isProcessing = true)`)
+4. `final overlayPng = await compute(LineArtEngine.convert, bytes);`
+5. If `overlayPng == null` → hide indicator, show error snackbar, return
+6. `final entry = await DrawingRepository.createUploadEntry(overlayPng);` // non-null here
+7. Hide loading indicator
+8. `Navigator.push(ColoringScreen(entry: entry))`
 
 ### `lib/widgets/drawing_card_widget.dart`
 
@@ -190,14 +193,27 @@ class DrawingCardWidget extends StatelessWidget {
 }
 ```
 
-**Thumbnail logic:**
-- If `thumbnail.png` exists → `Image.file(File(entry.thumbnailPath))` (colored snapshot)
-- Else if template → show `SvgPicture.asset(entry.overlayAssetPath!)` with dim opacity
-- Else (upload, no thumbnail) → `Image.file(File(entry.overlayFilePath!))` (line art preview)
+**Thumbnail existence check:** `HomeScreen` checks `File(entry.thumbnailPath).existsSync()` once during data loading (in `_loadData()`) and passes a `bool hasThumbnail` to each `DrawingCardWidget`. This avoids synchronous file-system calls inside `build()` on every frame.
+
+**Thumbnail display logic** (using the pre-computed `hasThumbnail` flag):
+- `hasThumbnail == true` → `Image.file(File(entry.thumbnailPath))` (colored snapshot)
+- `hasThumbnail == false && template` → `SvgPicture.asset(entry.overlayAssetPath!)` with reduced opacity (dim placeholder)
+- `hasThumbnail == false && upload` → `Image.file(File(entry.overlayFilePath!))` (raw line art preview)
+
+```dart
+class DrawingCardWidget extends StatelessWidget {
+  final DrawingEntry entry;
+  final String label;
+  final String? emoji;       // templates only
+  final bool hasThumbnail;   // pre-computed by HomeScreen
+  final VoidCallback onTap;
+  ...
+}
+```
 
 Status label below card:
-- thumbnail exists → `"● colored"` in purple/green
-- no thumbnail → `"not started"` in grey
+- `hasThumbnail == true` → `"● colored"` in purple/green
+- `hasThumbnail == false` → `"not started"` in grey
 
 ---
 
@@ -207,26 +223,40 @@ Status label below card:
 
 **Constructor gains `DrawingEntry entry` parameter.**
 
-**`initState` additions:**
+**`initState` — `await` is not allowed directly; use an async helper:**
 ```dart
-// 1. Set overlay from entry
-_activeTemplatePath = entry.overlayAssetPath;
-_overlayFilePath    = entry.overlayFilePath;   // new field — File-based overlay for uploads
+@override
+void initState() {
+  super.initState();
+  // Sync: set overlay immediately so the canvas renders on first frame
+  _activeTemplatePath = widget.entry.overlayAssetPath;
+  _overlayFilePath    = widget.entry.overlayFilePath;  // new field
+  // Async: load saved strokes in background; setState when ready
+  _loadSavedStrokes();
+}
 
-// 2. Load saved strokes
-final strokesJson = await DrawingRepository.loadStrokes(entry);
-if (strokesJson.isNotEmpty) {
-  _controller.loadStrokes(strokesJson.map(Stroke.fromJson).toList());
+Future<void> _loadSavedStrokes() async {
+  final strokesJson = await DrawingRepository.loadStrokes(widget.entry);
+  if (strokesJson.isNotEmpty && mounted) {
+    _controller.loadStrokes(strokesJson.map(Stroke.fromJson).toList());
+  }
 }
 ```
 
-**Back button — `WillPopScope` (or `PopScope` in Flutter 3.12+):**
+**Back button — use `PopScope` (Flutter 3.12+); `WillPopScope` is deprecated:**
 ```dart
-onWillPop: () async {
-  await _autoSave();
-  return true;
-}
+PopScope(
+  canPop: false,
+  onPopInvokedWithResult: (didPop, _) async {
+    if (didPop) return;
+    await _autoSave();
+    if (mounted) Navigator.of(context).pop();
+  },
+  child: Scaffold(...),
+)
 ```
+
+The AppBar back button is automatically handled by `PopScope` intercepting the Navigator pop request. No separate `leading` override is needed.
 
 **`_autoSave()`:**
 ```dart
@@ -273,7 +303,14 @@ else if (lineArtBytes != null)
   IgnorePointer(child: Image.memory(lineArtBytes!, fit: BoxFit.fill, gaplessPlayback: true))
 ```
 
-Update the mutual-exclusivity assert to cover all three fields.
+Update the mutual-exclusivity assert to cover all three fields:
+```dart
+assert(
+  [lineArtAssetPath, lineArtFilePath, lineArtBytes]
+      .where((v) => v != null).length <= 1,
+  'Supply at most one overlay: lineArtAssetPath, lineArtFilePath, or lineArtBytes.',
+)
+```
 
 ### `lib/app.dart`
 
@@ -321,6 +358,13 @@ No new packages required. All dependencies (`path_provider`, `file_picker`, `flu
 | `test/screens/home_screen_test.dart` | renders both sections; template cards show correct labels; upload "+" card present |
 
 `CanvasStackWidget` file-overlay rendering and thumbnail accuracy require manual `flutter run -d windows` review.
+
+---
+
+## Out of Scope (deferred)
+
+- **Upload deletion** — no UI to remove a My Uploads entry. Deferred to a future iteration.
+- **Multiple colorings of the same template** — one save slot per template; new coloring overwrites the previous thumbnail and strokes.
 
 ---
 
