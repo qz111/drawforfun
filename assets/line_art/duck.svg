@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body -->
+  <ellipse cx="205" cy="290" rx="108" ry="85" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Wing detail -->
+  <ellipse cx="272" cy="278" rx="38" ry="58" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Neck -->
+  <path d="M148,228 Q138,185 148,155" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <path d="M172,222 Q168,180 172,152" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Head -->
+  <circle cx="160" cy="138" r="52" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Bill -->
+  <ellipse cx="208" cy="142" rx="30" ry="14" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Nostril -->
+  <ellipse cx="208" cy="136" rx="6" ry="3" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Eye -->
+  <circle cx="172" cy="128" r="10" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="174" cy="128" r="5" fill="#1a1a1a"/>
+  <!-- Tail feathers -->
+  <path d="M312,278 Q348,255 355,278 Q348,300 338,295" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Feet -->
+  <path d="M158,368 Q148,380 128,375 M158,368 Q152,385 148,392 M158,368 Q165,382 158,392" stroke="#1a1a1a" stroke-width="2.5" fill="none"/>
+  <path d="M242,368 Q252,380 272,375 M242,368 Q248,385 252,392 M242,368 Q235,382 242,392" stroke="#1a1a1a" stroke-width="2.5" fill="none"/>
+</svg>

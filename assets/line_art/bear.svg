@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body -->
+  <ellipse cx="200" cy="282" rx="118" ry="98" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Head -->
+  <circle cx="200" cy="152" r="78" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Ears -->
+  <circle cx="148" cy="92" r="28" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <circle cx="252" cy="92" r="28" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <circle cx="148" cy="92" r="14" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <circle cx="252" cy="92" r="14" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Eyes -->
+  <circle cx="178" cy="142" r="13" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="222" cy="142" r="13" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="180" cy="142" r="6" fill="#1a1a1a"/>
+  <circle cx="224" cy="142" r="6" fill="#1a1a1a"/>
+  <!-- Snout -->
+  <ellipse cx="200" cy="175" rx="32" ry="24" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Nose -->
+  <ellipse cx="200" cy="167" rx="13" ry="9" fill="#1a1a1a"/>
+  <!-- Mouth -->
+  <path d="M187,178 Q200,192 213,178" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Paws -->
+  <ellipse cx="152" cy="362" rx="35" ry="20" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <ellipse cx="248" cy="362" rx="35" ry="20" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+</svg>

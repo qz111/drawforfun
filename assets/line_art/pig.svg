@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body (round) -->
+  <ellipse cx="200" cy="278" rx="120" ry="102" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Head -->
+  <circle cx="200" cy="150" r="80" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Ears -->
+  <polygon points="158,82 140,42 178,78" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <polygon points="242,82 260,42 222,78" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Eyes -->
+  <circle cx="175" cy="140" r="12" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="225" cy="140" r="12" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="177" cy="140" r="5" fill="#1a1a1a"/>
+  <circle cx="227" cy="140" r="5" fill="#1a1a1a"/>
+  <!-- Snout (big round) -->
+  <ellipse cx="200" cy="178" rx="38" ry="30" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Nostrils -->
+  <ellipse cx="188" cy="178" rx="8" ry="7" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <ellipse cx="212" cy="178" rx="8" ry="7" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Mouth -->
+  <path d="M184,190 Q200,202 216,190" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Trotters -->
+  <ellipse cx="148" cy="362" rx="30" ry="18" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <ellipse cx="252" cy="362" rx="30" ry="18" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Curly tail -->
+  <path d="M320,278 Q352,262 348,292 Q344,318 360,308" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+</svg>

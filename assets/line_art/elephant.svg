@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body -->
+  <ellipse cx="205" cy="270" rx="130" ry="105" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Head -->
+  <ellipse cx="175" cy="145" rx="85" ry="75" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Big ears -->
+  <ellipse cx="88" cy="148" rx="52" ry="68" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Trunk -->
+  <path d="M148,195 Q120,230 125,270 Q130,300 115,325" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Trunk tip -->
+  <ellipse cx="113" cy="328" rx="14" ry="10" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Eye -->
+  <circle cx="195" cy="130" r="12" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="197" cy="130" r="5" fill="#1a1a1a"/>
+  <!-- Tusk -->
+  <path d="M155,195 Q140,215 148,240" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Legs -->
+  <rect x="108" y="350" width="42" height="38" rx="10" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <rect x="165" y="350" width="42" height="38" rx="10" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <rect x="222" y="350" width="42" height="38" rx="10" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Tail -->
+  <path d="M335,268 Q360,255 358,285" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+</svg>

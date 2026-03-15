@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Fluffy body (overlapping circles suggest wool) -->
+  <circle cx="200" cy="272" r="98" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <circle cx="155" cy="250" r="55" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="245" cy="250" r="55" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="200" cy="225" r="52" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Head -->
+  <circle cx="200" cy="142" r="52" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Woolly head sides -->
+  <circle cx="158" cy="148" r="28" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="242" cy="148" r="28" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Ears -->
+  <ellipse cx="138" cy="172" rx="18" ry="28" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <ellipse cx="262" cy="172" rx="18" ry="28" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Eyes -->
+  <circle cx="184" cy="140" r="10" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="216" cy="140" r="10" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="186" cy="140" r="4" fill="#1a1a1a"/>
+  <circle cx="218" cy="140" r="4" fill="#1a1a1a"/>
+  <!-- Snout -->
+  <ellipse cx="200" cy="162" rx="22" ry="16" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Nose -->
+  <ellipse cx="200" cy="157" rx="8" ry="5" fill="#1a1a1a"/>
+  <!-- Legs -->
+  <line x1="155" y1="355" x2="148" y2="392" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round"/>
+  <line x1="180" y1="360" x2="175" y2="397" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round"/>
+  <line x1="220" y1="360" x2="225" y2="397" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round"/>
+  <line x1="245" y1="355" x2="252" y2="392" stroke="#1a1a1a" stroke-width="6" stroke-linecap="round"/>
+</svg>

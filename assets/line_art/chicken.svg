@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body (egg-shaped) -->
+  <ellipse cx="200" cy="285" rx="95" ry="108" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Wing -->
+  <ellipse cx="275" cy="270" rx="42" ry="65" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Head -->
+  <circle cx="200" cy="152" r="58" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Comb -->
+  <polygon points="186,98 194,72 202,98" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <polygon points="198,98 206,68 214,98" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Beak -->
+  <polygon points="238,152 265,144 265,160" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Eye -->
+  <circle cx="215" cy="145" r="10" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="217" cy="145" r="5" fill="#1a1a1a"/>
+  <!-- Wattle -->
+  <ellipse cx="240" cy="168" rx="10" ry="14" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Feet -->
+  <line x1="170" y1="388" x2="162" y2="365" stroke="#1a1a1a" stroke-width="4"/>
+  <line x1="162" y1="365" x2="138" y2="372" stroke="#1a1a1a" stroke-width="3"/>
+  <line x1="162" y1="365" x2="155" y2="388" stroke="#1a1a1a" stroke-width="3"/>
+  <line x1="162" y1="365" x2="172" y2="388" stroke="#1a1a1a" stroke-width="3"/>
+  <line x1="230" y1="388" x2="238" y2="365" stroke="#1a1a1a" stroke-width="4"/>
+  <line x1="238" y1="365" x2="262" y2="372" stroke="#1a1a1a" stroke-width="3"/>
+  <line x1="238" y1="365" x2="245" y2="388" stroke="#1a1a1a" stroke-width="3"/>
+  <line x1="238" y1="365" x2="228" y2="388" stroke="#1a1a1a" stroke-width="3"/>
+</svg>

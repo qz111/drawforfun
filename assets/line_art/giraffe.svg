@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body -->
+  <ellipse cx="220" cy="300" rx="95" ry="75" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Long neck -->
+  <path d="M175,235 Q168,160 175,95" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <path d="M215,232 Q222,158 218,92" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Head -->
+  <ellipse cx="196" cy="82" rx="35" ry="28" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Snout extension -->
+  <ellipse cx="196" cy="100" rx="20" ry="14" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Ossicones (horns) -->
+  <line x1="182" y1="58" x2="178" y2="28" stroke="#1a1a1a" stroke-width="3"/>
+  <circle cx="178" cy="26" r="5" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <line x1="210" y1="58" x2="214" y2="28" stroke="#1a1a1a" stroke-width="3"/>
+  <circle cx="214" cy="26" r="5" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Eye -->
+  <circle cx="208" cy="74" r="9" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="210" cy="74" r="4" fill="#1a1a1a"/>
+  <!-- Nostril -->
+  <ellipse cx="200" cy="105" rx="5" ry="3" fill="#1a1a1a"/>
+  <!-- Legs -->
+  <line x1="148" y1="358" x2="148" y2="390" stroke="#1a1a1a" stroke-width="8" stroke-linecap="round"/>
+  <line x1="185" y1="360" x2="185" y2="392" stroke="#1a1a1a" stroke-width="8" stroke-linecap="round"/>
+  <line x1="250" y1="360" x2="250" y2="392" stroke="#1a1a1a" stroke-width="8" stroke-linecap="round"/>
+  <line x1="288" y1="358" x2="288" y2="390" stroke="#1a1a1a" stroke-width="8" stroke-linecap="round"/>
+  <!-- Tail -->
+  <path d="M315,295 Q342,278 338,310" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+</svg>

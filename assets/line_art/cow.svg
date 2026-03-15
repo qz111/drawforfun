@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body -->
+  <ellipse cx="210" cy="265" rx="128" ry="95" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Spots -->
+  <ellipse cx="175" cy="248" rx="32" ry="22" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <ellipse cx="248" cy="285" rx="25" ry="18" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Neck -->
+  <path d="M125,195 Q112,152 128,112" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <path d="M158,192 Q150,150 160,110" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Head -->
+  <ellipse cx="144" cy="96" rx="42" ry="38" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Snout -->
+  <ellipse cx="144" cy="120" rx="26" ry="18" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <ellipse cx="137" cy="120" rx="6" ry="4" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <ellipse cx="151" cy="120" rx="6" ry="4" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Eye -->
+  <circle cx="162" cy="88" r="9" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="163" cy="88" r="4" fill="#1a1a1a"/>
+  <!-- Ears -->
+  <ellipse cx="106" cy="96" rx="16" ry="24" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <ellipse cx="182" cy="82" rx="16" ry="20" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Horns -->
+  <path d="M128,68 Q118,45 108,52" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <path d="M162,64 Q172,41 182,48" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Legs -->
+  <line x1="118" y1="342" x2="112" y2="392" stroke="#1a1a1a" stroke-width="7" stroke-linecap="round"/>
+  <line x1="160" y1="345" x2="157" y2="395" stroke="#1a1a1a" stroke-width="7" stroke-linecap="round"/>
+  <line x1="248" y1="345" x2="252" y2="395" stroke="#1a1a1a" stroke-width="7" stroke-linecap="round"/>
+  <line x1="290" y1="340" x2="296" y2="390" stroke="#1a1a1a" stroke-width="7" stroke-linecap="round"/>
+  <!-- Udder -->
+  <ellipse cx="200" cy="358" rx="30" ry="15" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Tail -->
+  <path d="M337,260 Q368,242 362,280" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+</svg>
