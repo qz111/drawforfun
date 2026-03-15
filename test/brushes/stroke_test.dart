@@ -17,10 +17,10 @@ void main() {
 
   group('Stroke', () {
     test('stores type, color, and points', () {
-      final stroke = Stroke(
+      const stroke = Stroke(
         type: BrushType.pencil,
         color: Colors.red,
-        points: [const Offset(10, 20), const Offset(30, 40)],
+        points: [Offset(10, 20), Offset(30, 40)],
       );
       expect(stroke.type, BrushType.pencil);
       expect(stroke.color, Colors.red);
@@ -28,10 +28,10 @@ void main() {
     });
 
     test('copyWithPoint adds a point', () {
-      final stroke = Stroke(
+      const stroke = Stroke(
         type: BrushType.marker,
         color: Colors.blue,
-        points: [const Offset(0, 0)],
+        points: [Offset(0, 0)],
       );
       final updated = stroke.copyWithPoint(const Offset(5, 5));
       expect(updated.points.length, 2);

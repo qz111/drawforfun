@@ -37,16 +37,16 @@ void main() {
     }
 
     test('paintStroke with single point does not throw', () {
-      final stroke = Stroke(
+      const stroke = Stroke(
         type: BrushType.pencil,
         color: Colors.blue,
-        points: [const Offset(5, 5)],
+        points: [Offset(5, 5)],
       );
       expect(() => BrushEngine.paint(canvas, stroke), returnsNormally);
     });
 
     test('paintStroke with empty points does not throw', () {
-      final stroke = Stroke(
+      const stroke = Stroke(
         type: BrushType.marker,
         color: Colors.green,
         points: [],

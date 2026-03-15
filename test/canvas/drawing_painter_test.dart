@@ -8,21 +8,21 @@ import 'package:drawforfun/brushes/stroke.dart';
 void main() {
   group('DrawingPainter', () {
     test('shouldRepaint returns true when strokes change', () {
-      final stroke = Stroke(type: BrushType.pencil, color: Colors.red, points: [Offset.zero]);
-      final oldPainter = DrawingPainter(strokes: [], currentStroke: null);
-      final newPainter = DrawingPainter(strokes: [stroke], currentStroke: null);
+      const stroke = Stroke(type: BrushType.pencil, color: Colors.red, points: [Offset.zero]);
+      const oldPainter = DrawingPainter(strokes: [], currentStroke: null);
+      const newPainter = DrawingPainter(strokes: [stroke], currentStroke: null);
       expect(newPainter.shouldRepaint(oldPainter), isTrue);
     });
 
     test('shouldRepaint returns true when currentStroke changes', () {
-      final stroke = Stroke(type: BrushType.pencil, color: Colors.red, points: [Offset.zero]);
-      final oldPainter = DrawingPainter(strokes: [], currentStroke: null);
-      final newPainter = DrawingPainter(strokes: [], currentStroke: stroke);
+      const stroke = Stroke(type: BrushType.pencil, color: Colors.red, points: [Offset.zero]);
+      const oldPainter = DrawingPainter(strokes: [], currentStroke: null);
+      const newPainter = DrawingPainter(strokes: [], currentStroke: stroke);
       expect(newPainter.shouldRepaint(oldPainter), isTrue);
     });
 
     test('shouldRepaint returns false when nothing changed', () {
-      final painter = DrawingPainter(strokes: [], currentStroke: null);
+      const painter = DrawingPainter(strokes: [], currentStroke: null);
       expect(painter.shouldRepaint(painter), isFalse);
     });
 
