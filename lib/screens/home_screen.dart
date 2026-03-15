@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (mounted) setState(() => _isLoading = true);
 
     // Fetch all three sources in parallel
-    final results = await Future.wait([
+    final results = await Future.wait<List<_CardData>>([
       Future.wait(
         AnimalTemplates.all.map((template) async {
           final entry = await DrawingRepository.templateEntry(template);
@@ -192,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               icon: const Icon(Icons.add_circle_outline),
                               color: Colors.deepPurple,
                               tooltip: 'Add photo to templates',
-                              onPressed: _startRawImport,
+                              onPressed: _isImporting ? null : _startRawImport,
                               padding: EdgeInsets.zero,
                               constraints: const BoxConstraints(),
                             ),
