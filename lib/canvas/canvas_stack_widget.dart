@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -6,28 +7,38 @@ import 'drawing_painter.dart';
 
 /// The main canvas: drawing layer (bottom) + line art overlay (top).
 /// Touch events are forwarded to [CanvasController].
-/// The overlay (SVG template or photo PNG) is wrapped in [IgnorePointer]
-/// so all touch always reaches the drawing layer.
+/// All overlay types are wrapped in [IgnorePointer] so touch always
+/// reaches the drawing layer regardless of which overlay is active.
+///
+/// Overlay priority (supply at most one):
+///   1. [lineArtAssetPath] — SVG asset (built-in templates)
+///   2. [lineArtFilePath]  — local PNG file path (uploaded photos)
+///   3. [lineArtBytes]     — in-memory PNG bytes (legacy, kept for compatibility)
 class CanvasStackWidget extends StatelessWidget {
   final CanvasController controller;
 
-  /// Optional photo line art PNG bytes (from LineArtEngine). Mutually
-  /// exclusive with [lineArtAssetPath] — caller must null one when setting the other.
-  final Uint8List? lineArtBytes;
-
-  /// Optional SVG asset path for a built-in animal template
-  /// (e.g. 'assets/line_art/cat.svg'). Takes priority over [lineArtBytes]
-  /// if both are somehow non-null.
+  /// SVG asset path for a built-in template, e.g. 'assets/line_art/cat.svg'.
   final String? lineArtAssetPath;
+
+  /// Absolute path to a local PNG file for an uploaded photo overlay.
+  final String? lineArtFilePath;
+
+  /// In-memory PNG bytes. Kept for backward compatibility; prefer [lineArtFilePath].
+  final Uint8List? lineArtBytes;
 
   const CanvasStackWidget({
     super.key,
     required this.controller,
-    this.lineArtBytes,
     this.lineArtAssetPath,
+    this.lineArtFilePath,
+    this.lineArtBytes,
   }) : assert(
-          lineArtBytes == null || lineArtAssetPath == null,
-          'Supply at most one overlay: lineArtBytes or lineArtAssetPath, not both.',
+          // At most one overlay field may be non-null.
+          (lineArtAssetPath == null ? 0 : 1) +
+                  (lineArtFilePath == null ? 0 : 1) +
+                  (lineArtBytes == null ? 0 : 1) <=
+              1,
+          'Supply at most one overlay: lineArtAssetPath, lineArtFilePath, or lineArtBytes.',
         );
 
   @override
@@ -56,13 +67,20 @@ class CanvasStackWidget extends StatelessWidget {
           ),
 
           // Layer 1: Line art overlay (always on top, never intercepts touch).
-          // SVG template takes priority; falls back to photo PNG bytes.
           if (lineArtAssetPath != null)
             IgnorePointer(
               child: SvgPicture.asset(
                 lineArtAssetPath!,
-                fit: BoxFit.fill, // fill ensures overlay and drawing layer share the same coordinate space
-                placeholderBuilder: (_) => const SizedBox.expand(), // silent fallback on load error
+                fit: BoxFit.fill,
+                placeholderBuilder: (_) => const SizedBox.expand(),
+              ),
+            )
+          else if (lineArtFilePath != null)
+            IgnorePointer(
+              child: Image.file(
+                File(lineArtFilePath!),
+                fit: BoxFit.fill,
+                gaplessPlayback: true,
               ),
             )
           else if (lineArtBytes != null)
@@ -70,7 +88,6 @@ class CanvasStackWidget extends StatelessWidget {
               child: Image.memory(
                 lineArtBytes!,
                 fit: BoxFit.fill,
-                // Transparent pixels in the PNG let the drawing layer show through
                 gaplessPlayback: true,
               ),
             ),
