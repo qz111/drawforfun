@@ -39,6 +39,18 @@ void main() {
       expect(entry.type, DrawingType.upload);
     });
 
+    test('rawImport entry has overlayFilePath, no overlayAssetPath', () {
+      const entry = DrawingEntry(
+        id: 'rawimport_20260315_143000',
+        type: DrawingType.rawImport,
+        overlayFilePath: '/docs/drawforfun/drawings/rawimport_20260315_143000/overlay.png',
+        directoryPath: '/docs/drawforfun/drawings/rawimport_20260315_143000',
+      );
+      expect(entry.overlayFilePath, isNotNull);
+      expect(entry.overlayAssetPath, isNull);
+      expect(entry.type, DrawingType.rawImport);
+    });
+
     test('throws if both overlayAssetPath and overlayFilePath are null', () {
       expect(
         () => DrawingEntry(
