@@ -93,7 +93,7 @@ class AnimalTemplates {
 - `StatelessWidget` — no local state needed
 - `Scaffold` with deep-purple `AppBar` titled "Choose an Animal"
 - `GridView.builder` with 3 columns
-- Each cell: `AnimalTemplateCard` — rounded card with `SvgPicture.asset` thumbnail + name label below
+- Each cell: `AnimalTemplateCard` — rounded card with `SvgPicture.asset` thumbnail (with `placeholderBuilder` showing a grey box on load failure) + name label below
 - Tapping a card calls `Navigator.pop(context, template)`
 - Back button returns `null` (no selection)
 
@@ -117,7 +117,11 @@ Add `String? lineArtAssetPath` parameter. Add `IgnorePointer` to the overlay lay
 // Layer 1: Line art overlay (always on top, never intercepts touch)
 if (lineArtAssetPath != null)
   IgnorePointer(
-    child: SvgPicture.asset(lineArtAssetPath!, fit: BoxFit.fill),
+    child: SvgPicture.asset(
+      lineArtAssetPath!,
+      fit: BoxFit.fill,
+      placeholderBuilder: (_) => const SizedBox.expand(), // silent fallback on load error
+    ),
   )
 else if (lineArtBytes != null)
   IgnorePointer(
