@@ -25,7 +25,10 @@ class CanvasStackWidget extends StatelessWidget {
     required this.controller,
     this.lineArtBytes,
     this.lineArtAssetPath,
-  });
+  }) : assert(
+          lineArtBytes == null || lineArtAssetPath == null,
+          'Supply at most one overlay: lineArtBytes or lineArtAssetPath, not both.',
+        );
 
   @override
   Widget build(BuildContext context) {
