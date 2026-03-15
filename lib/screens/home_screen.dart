@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -141,6 +142,24 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _confirmDelete(_CardData card) {
+    showDialog<void>(
+      context: context,
+      builder: (_) => DeleteConfirmationDialog(
+        entry: card.entry,
+        onConfirmed: () {
+          setState(() {
+            // List.remove uses == which defaults to reference equality for _CardData.
+            // This is correct: `card` is the exact same object instance stored in
+            // _templateCards / _uploadCards, so reference equality finds it reliably.
+            _templateCards.remove(card);
+            _uploadCards.remove(card);
+          });
+        },
+      ),
+    );
+  }
+
   String _uploadLabel(String id) {
     // id: 'upload_YYYYMMDD_HHmmss' → 'Photo MM/DD'
     try {
@@ -218,6 +237,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         emoji: card.emoji,
                         hasThumbnail: card.hasThumbnail,
                         onTap: () => _openEntry(card.entry),
+                        onDelete: card.entry.type == DrawingType.template
+                            ? null
+                            : () => _confirmDelete(card),
                       );
                     },
                   ),
@@ -252,6 +274,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 label: card.label,
                                 hasThumbnail: card.hasThumbnail,
                                 onTap: () => _openEntry(card.entry),
+                                onDelete: () => _confirmDelete(card),
                               ),
                             ),
                           ),
@@ -318,6 +341,114 @@ class _UploadAddButton extends StatelessWidget {
                 ],
               ),
       ),
+    );
+  }
+}
+
+/// A dialog that requires the user to solve a simple addition problem
+/// before permanently deleting a user-owned drawing entry.
+///
+/// The math gate (sum of two random numbers 5–15) is trivially easy for
+/// adults but reliably unsolvable by children aged 3–5.
+class DeleteConfirmationDialog extends StatefulWidget {
+  final DrawingEntry entry;
+  final VoidCallback onConfirmed;
+
+  const DeleteConfirmationDialog({
+    super.key,
+    required this.entry,
+    required this.onConfirmed,
+  });
+
+  @override
+  State<DeleteConfirmationDialog> createState() =>
+      _DeleteConfirmationDialogState();
+}
+
+class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
+  late final int _a;
+  late final int _b;
+  late final int _answer;
+  final _controller = TextEditingController();
+  String? _errorText;
+  bool _isDeleting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final rng = Random();
+    _a = 5 + rng.nextInt(11); // 5–15
+    _b = 5 + rng.nextInt(11); // 5–15
+    _answer = _a + _b;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onDelete() async {
+    final input = int.tryParse(_controller.text.trim());
+    if (input != _answer) {
+      setState(() {
+        _errorText = 'Wrong answer, try again';
+        _controller.clear();
+      });
+      return;
+    }
+    setState(() => _isDeleting = true);
+    try {
+      await DrawingRepository.deleteEntry(widget.entry);
+      widget.onConfirmed();
+      if (mounted) Navigator.of(context).pop();
+    } finally {
+      if (mounted) setState(() => _isDeleting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Delete this image?'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'What is $_a + $_b?',
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _controller,
+            keyboardType: TextInputType.number,
+            autofocus: true,
+            decoration: InputDecoration(
+              hintText: 'Your answer',
+              errorText: _errorText,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: _isDeleting ? null : _onDelete,
+          child: _isDeleting
+              ? const SizedBox(
+                  width: 16,
+                  height: 16,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                )
+              : const Text('Delete', style: TextStyle(color: Colors.red)),
+        ),
+      ],
     );
   }
 }
