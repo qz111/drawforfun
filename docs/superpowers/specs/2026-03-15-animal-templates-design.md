@@ -125,7 +125,13 @@ else if (lineArtBytes != null)
   ),
 ```
 
-`IgnorePointer` is added to **both** overlay types (SVG template and photo bytes) so touch always reaches the drawing layer.
+**Important:** `IgnorePointer` is added to **both** overlay types (SVG template and photo bytes). The existing `Image.memory` overlay currently lacks `IgnorePointer` — adding it here is an intentional bug fix bundled into this feature. Without it, touch events on the photo overlay are silently absorbed.
+
+**Important:** The `else if` ordering is intentional — `lineArtAssetPath` (template) takes priority. Both fields are mutually exclusive in practice: `_applyTemplate` nulls out `_lineArtBytes`, and `_pickAndConvertPhoto` nulls out `_activeTemplatePath` (see below). The `else if` guards against any race where both are non-null.
+
+**`BoxFit.fill`** stretches the SVG to fill the canvas exactly. Since SVGs have `viewBox="0 0 400 400"` (square) and the canvas area is typically non-square, there will be slight distortion — this is intentional to ensure drawing coordinates and overlay coordinates always align. `BoxFit.contain` would introduce letterboxing and misalign strokes near edges.
+
+**SVG rendering inside `RepaintBoundary`:** The SVG overlay is inside the `RepaintBoundary` keyed by `_repaintKey`, so `SaveManager.captureCanvas` captures both the drawing layer and the SVG template together. `flutter_svg` renders synchronously into the Flutter layer tree and is fully captured by `RenderRepaintBoundary.toImage`.
 
 #### `lib/screens/coloring_screen.dart`
 
@@ -156,14 +162,22 @@ AlertDialog — "Switch template?" with three actions:
 ```dart
 _controller.clear();
 setState(() {
-  _lineArtBytes = null;
+  _lineArtBytes = null;          // clear any active photo overlay
   _activeTemplatePath = template.assetPath;
+});
+```
+
+**Updated `_pickAndConvertPhoto()`** — must clear `_activeTemplatePath` when a photo is loaded, to maintain mutual exclusivity:
+```dart
+if (mounted) setState(() {
+  _lineArtBytes = lineArt;
+  _activeTemplatePath = null;    // clear any active template overlay
 });
 ```
 
 **Updated `CanvasStackWidget` call** passes both `lineArtBytes: _lineArtBytes` and `lineArtAssetPath: _activeTemplatePath`.
 
-**Updated `_showClearDialog`** — clears both `_lineArtBytes` and `_activeTemplatePath` in addition to `_controller.clear()`.
+**Updated `_showClearDialog`** — clears both `_lineArtBytes` and `_activeTemplatePath` in addition to `_controller.clear()`. This is also a bug fix: the existing implementation does not clear `_lineArtBytes` on "Clear drawing", so a photo overlay currently persists after clearing strokes.
 
 #### `pubspec.yaml`
 
@@ -207,8 +221,15 @@ TemplateScreen
 | Test file | What it covers |
 |-----------|---------------|
 | `test/templates/animal_templates_test.dart` | List length == 25, unique IDs, unique asset paths, correct path format |
+| `test/screens/template_screen_test.dart` | Widget test: grid renders 25 cards; tapping a card calls `Navigator.pop` with the correct `AnimalTemplate`; back button returns `null` |
 
-`TemplateScreen` and `CanvasStackWidget` changes are UI-only — covered by manual visual QA via `flutter run -d windows`.
+`CanvasStackWidget` SVG rendering and visual QA (overlay alignment, art style) require manual `flutter run -d windows` review.
+
+---
+
+## Implementation Sequencing Note
+
+The 25 SVG asset files under `assets/line_art/` must be created **before** `pubspec.yaml` declares `- assets/line_art/`, otherwise `flutter analyze` and `flutter run` will fail with missing asset errors. The implementation plan must sequence SVG asset creation first, then `pubspec.yaml` update, then code changes.
 
 ---
 
@@ -218,3 +239,4 @@ TemplateScreen
 - Visual QA (template grid appearance, SVG rendering, overlay alignment) requires manual `flutter run -d windows` review
 - `flutter_svg` renders SVGs in Flutter via a Dart parser — no platform-native SVG engine required, works on Windows desktop
 - SVG files must use only basic SVG elements supported by `flutter_svg`: `path`, `circle`, `ellipse`, `rect`, `line`, `polyline`, `polygon`, `g`. No `text`, `image`, `filter`, or `foreignObject`.
+- `SvgPicture.asset` should use `placeholderBuilder` to show a grey placeholder if the SVG fails to load (e.g. missing or corrupt asset), preventing a silent blank overlay.
