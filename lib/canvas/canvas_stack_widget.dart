@@ -27,6 +27,7 @@ class CanvasStackWidget extends StatelessWidget {
       ),
       onPanUpdate: (d) => controller.addPoint(d.localPosition),
       onPanEnd: (_) => controller.endStroke(),
+      onPanCancel: () => controller.endStroke(),
       child: Stack(
         fit: StackFit.expand,
         children: [
@@ -45,7 +46,7 @@ class CanvasStackWidget extends StatelessWidget {
           if (lineArtBytes != null)
             Image.memory(
               lineArtBytes!,
-              fit: BoxFit.contain,
+              fit: BoxFit.fill, // fill ensures overlay and drawing layer share the same coordinate space
               // Transparent pixels in the PNG let the drawing layer show through
               gaplessPlayback: true,
             ),
