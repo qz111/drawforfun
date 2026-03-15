@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'screens/coloring_screen.dart';
+import 'screens/home_screen.dart';
 
 class DrawForFunApp extends StatelessWidget {
   const DrawForFunApp({super.key});
@@ -13,7 +13,7 @@ class DrawForFunApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const ColoringScreen(),
+      home: const HomeScreen(),
     );
   }
 }

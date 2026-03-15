@@ -1,17 +1,17 @@
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import '../brushes/stroke.dart';
 import '../canvas/canvas_controller.dart';
 import '../canvas/canvas_stack_widget.dart';
-import '../line_art/line_art_engine.dart';
 import '../palette/palette_widget.dart';
+import '../persistence/drawing_entry.dart';
+import '../persistence/drawing_repository.dart';
 import '../save/save_manager.dart';
-import '../templates/animal_template.dart';
 import '../widgets/brush_selector_widget.dart';
-import 'template_screen.dart';
 
 class ColoringScreen extends StatefulWidget {
-  const ColoringScreen({super.key});
+  final DrawingEntry entry;
+
+  const ColoringScreen({super.key, required this.entry});
 
   @override
   State<ColoringScreen> createState() => _ColoringScreenState();
@@ -20,20 +20,22 @@ class ColoringScreen extends StatefulWidget {
 class _ColoringScreenState extends State<ColoringScreen> {
   final _controller = CanvasController();
   final _repaintKey = GlobalKey();
+  bool _isSaving = false;
 
-  /// Photo-converted line art bytes (from LineArtEngine). Null when a template is active.
-  Uint8List? _lineArtBytes;
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedStrokes();
+  }
 
-  /// Active animal template asset path. Null when photo line art is active or canvas is blank.
-  String? _activeTemplatePath;
-
-  bool _isProcessing = false;
-
-  /// True when the canvas has any content worth saving or switching away from.
-  bool get _canvasHasContent =>
-      _controller.strokes.isNotEmpty ||
-      _lineArtBytes != null ||
-      _activeTemplatePath != null;
+  /// Loads previously saved strokes from disk in the background.
+  /// Does nothing if no strokes.json exists for this entry.
+  Future<void> _loadSavedStrokes() async {
+    final strokesJson = await DrawingRepository.loadStrokes(widget.entry);
+    if (strokesJson.isNotEmpty && mounted) {
+      _controller.loadStrokes(strokesJson.map(Stroke.fromJson).toList());
+    }
+  }
 
   @override
   void dispose() {
@@ -41,195 +43,132 @@ class _ColoringScreenState extends State<ColoringScreen> {
     super.dispose();
   }
 
-  Future<void> _pickAndConvertPhoto() async {
-    // withData: true is required on Windows/desktop — bytes is null otherwise.
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      withData: true,
-    );
-    if (result == null || result.files.single.bytes == null) return;
-    if (!mounted) return;
-
-    setState(() => _isProcessing = true);
-    try {
-      // Run heavy Sobel computation in a background isolate so the spinner renders.
-      final lineArt = await compute(LineArtEngine.convert, result.files.single.bytes!);
-      if (mounted) {
-        setState(() {
-          _lineArtBytes = lineArt;
-          _activeTemplatePath = null; // photo overlay replaces any active template
-        });
-      }
-    } finally {
-      if (mounted) setState(() => _isProcessing = false);
+  /// Persists current strokes (JSON) and captures a thumbnail PNG.
+  /// Called automatically when the user navigates back.
+  Future<void> _autoSave() async {
+    await DrawingRepository.saveStrokes(
+        widget.entry, _controller.strokesToJson());
+    final bytes = await SaveManager.captureCanvas(_repaintKey);
+    if (bytes != null) {
+      await DrawingRepository.saveThumbnail(widget.entry, bytes);
     }
   }
 
-  Future<void> _saveArtwork() async {
+  /// Saves the current canvas as a PNG to the device photo gallery.
+  /// On Windows this is a silent no-op.
+  Future<void> _saveToGallery() async {
     final bytes = await SaveManager.captureCanvas(_repaintKey);
     if (bytes == null || !mounted) return;
-
-    final path = await SaveManager.saveToAppDocuments(bytes);
-
-    // Gallery save (iOS only) failures are silent — in-app save is the primary path.
     await SaveManager.saveToGallery(bytes);
-
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(path != null ? 'Saved!' : 'Save failed'),
-          backgroundColor: path != null ? Colors.green : Colors.red,
+        const SnackBar(
+          content: Text('Saved to gallery!'),
+          backgroundColor: Colors.green,
         ),
       );
     }
   }
 
-  /// Entry point for the Templates toolbar button.
-  Future<void> _onTemplatesTapped() async {
-    if (_canvasHasContent) {
-      await _showSwitchTemplateDialog();
-    } else {
-      await _navigateToTemplateScreen();
-    }
-  }
-
-  /// Shows a dialog offering to save, discard, or cancel before switching templates.
-  Future<void> _showSwitchTemplateDialog() async {
-    await showDialog<void>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Switch template?'),
-        content: const Text('You have a drawing in progress.'),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await _saveArtwork();
-              if (mounted) await _navigateToTemplateScreen();
-            },
-            child: const Text('Save & Switch'),
-          ),
-          TextButton(
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await _navigateToTemplateScreen();
-            },
-            child: const Text('Discard & Switch', style: TextStyle(color: Colors.orange)),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Pushes TemplateScreen and applies the selection if one is made.
-  Future<void> _navigateToTemplateScreen() async {
-    final template = await Navigator.push<AnimalTemplate>(
-      context,
-      MaterialPageRoute(builder: (_) => const TemplateScreen()),
-    );
-    if (template != null && mounted) {
-      _applyTemplate(template);
-    }
-  }
-
-  /// Clears strokes and sets the active template, nulling photo overlay.
-  void _applyTemplate(AnimalTemplate template) {
-    _controller.clear();
-    setState(() {
-      _lineArtBytes = null;
-      _activeTemplatePath = template.assetPath;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        title: const Text('Draw For Fun', style: TextStyle(fontWeight: FontWeight.bold)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.pets),
-            onPressed: _isProcessing ? null : _onTemplatesTapped,
-            tooltip: 'Templates',
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        setState(() => _isSaving = true);
+        await _autoSave();
+        if (mounted) {
+          setState(() => _isSaving = false);
+          Navigator.of(context).pop();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade100,
+        appBar: AppBar(
+          backgroundColor: Colors.deepPurple,
+          foregroundColor: Colors.white,
+          title: const Text(
+            'Draw For Fun',
+            style: TextStyle(fontWeight: FontWeight.bold),
           ),
-          IconButton(
-            icon: const Icon(Icons.photo_library),
-            onPressed: _isProcessing ? null : _pickAndConvertPhoto,
-            tooltip: 'Load photo',
-          ),
-          IconButton(
-            icon: const Icon(Icons.undo),
-            onPressed: _controller.undo,
-            tooltip: 'Undo',
-          ),
-          IconButton(
-            icon: const Icon(Icons.delete_outline),
-            onPressed: _isProcessing ? null : () => _showClearDialog(context),
-            tooltip: 'Clear',
-          ),
-          IconButton(
-            icon: const Icon(Icons.save_alt),
-            onPressed: _isProcessing ? null : _saveArtwork,
-            tooltip: 'Save',
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          // ── Canvas ──────────────────────────────────────────────────────
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: RepaintBoundary(
-                key: _repaintKey,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(16),
-                  child: _isProcessing
-                      ? const Center(child: CircularProgressIndicator())
-                      : CanvasStackWidget(
-                          controller: _controller,
-                          lineArtBytes: _lineArtBytes,
-                          lineArtAssetPath: _activeTemplatePath,
-                        ),
-                ),
-              ),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.undo),
+              onPressed: _controller.undo,
+              tooltip: 'Undo',
             ),
-          ),
-
-          // ── Bottom Panel ─────────────────────────────────────────────
-          Container(
-            color: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              onPressed: _isSaving ? null : () => _showClearDialog(context),
+              tooltip: 'Clear',
+            ),
+            IconButton(
+              icon: const Icon(Icons.save_alt),
+              onPressed: _isSaving ? null : _saveToGallery,
+              tooltip: 'Save to gallery',
+            ),
+          ],
+        ),
+        body: Stack(
+          children: [
+            Column(
               children: [
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (_, __) => BrushSelectorWidget(
-                    selectedBrush: _controller.activeBrushType,
-                    onBrushSelected: _controller.setActiveBrush,
+                // ── Canvas ──────────────────────────────────────────
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RepaintBoundary(
+                      key: _repaintKey,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: CanvasStackWidget(
+                          controller: _controller,
+                          lineArtAssetPath: widget.entry.overlayAssetPath,
+                          lineArtFilePath: widget.entry.overlayFilePath,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-                const SizedBox(height: 10),
-                AnimatedBuilder(
-                  animation: _controller,
-                  builder: (_, __) => PaletteWidget(
-                    selectedColor: _controller.activeColor,
-                    onColorSelected: _controller.setActiveColor,
+
+                // ── Bottom Panel ─────────────────────────────────────
+                Container(
+                  color: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 8, horizontal: 12),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimatedBuilder(
+                        animation: _controller,
+                        builder: (_, __) => BrushSelectorWidget(
+                          selectedBrush: _controller.activeBrushType,
+                          onBrushSelected: _controller.setActiveBrush,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      AnimatedBuilder(
+                        animation: _controller,
+                        builder: (_, __) => PaletteWidget(
+                          selectedColor: _controller.activeColor,
+                          onColorSelected: _controller.setActiveColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+
+            // Auto-save overlay — dims screen and shows spinner while saving
+            if (_isSaving)
+              const ColoredBox(
+                color: Color(0x55000000),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -239,8 +178,10 @@ class _ColoringScreenState extends State<ColoringScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Clear drawing?'),
-        content: const Text('This will erase everything. Are you sure?'),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        content: const Text(
+            'This will erase your strokes. The line art stays.'),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -248,14 +189,11 @@ class _ColoringScreenState extends State<ColoringScreen> {
           ),
           TextButton(
             onPressed: () {
-              _controller.clear();
-              setState(() {
-                _lineArtBytes = null;       // bug fix: was not clearing photo overlay
-                _activeTemplatePath = null;  // clear template overlay too
-              });
+              _controller.clear(); // strokes only — overlay intentionally kept
               Navigator.pop(ctx);
             },
-            child: const Text('Clear', style: TextStyle(color: Colors.red)),
+            child:
+                const Text('Clear', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
