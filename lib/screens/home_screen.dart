@@ -19,6 +19,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool _isLoading = true;
   bool _isUploading = false;
+  bool _isImporting = false;
 
   List<_CardData> _templateCards = [];
   List<_CardData> _uploadCards = [];
@@ -32,35 +33,46 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _loadData() async {
     if (mounted) setState(() => _isLoading = true);
 
-    // Build template cards for all 25 animals
-    final templateCards = await Future.wait(
-      AnimalTemplates.all.map((template) async {
-        final entry = await DrawingRepository.templateEntry(template);
+    // Fetch all three sources in parallel
+    final results = await Future.wait([
+      Future.wait(
+        AnimalTemplates.all.map((template) async {
+          final entry = await DrawingRepository.templateEntry(template);
+          final hasThumbnail = File(entry.thumbnailPath).existsSync();
+          return _CardData(
+            entry: entry,
+            label: template.name,
+            emoji: template.emoji,
+            hasThumbnail: hasThumbnail,
+          );
+        }),
+      ),
+      DrawingRepository.listRawImportEntries().then((entries) => entries.map((entry) {
+        final hasThumbnail = File(entry.thumbnailPath).existsSync();
+        return _CardData(
+          // _uploadLabel handles both 'upload_YYYYMMDD_...' and 'rawimport_YYYYMMDD_...'
+          // because both have the date segment at split('_')[1].
+          entry: entry,
+          label: _uploadLabel(entry.id),
+          emoji: '📷',
+          hasThumbnail: hasThumbnail,
+        );
+      }).toList()),
+      DrawingRepository.listUploadEntries().then((entries) => entries.map((entry) {
         final hasThumbnail = File(entry.thumbnailPath).existsSync();
         return _CardData(
           entry: entry,
-          label: template.name,
-          emoji: template.emoji,
+          label: _uploadLabel(entry.id),
           hasThumbnail: hasThumbnail,
         );
-      }),
-    );
-
-    // Load upload entries
-    final uploadEntries = await DrawingRepository.listUploadEntries();
-    final uploadCards = uploadEntries.map((entry) {
-      final hasThumbnail = File(entry.thumbnailPath).existsSync();
-      return _CardData(
-        entry: entry,
-        label: _uploadLabel(entry.id),
-        hasThumbnail: hasThumbnail,
-      );
-    }).toList();
+      }).toList()),
+    ]);
 
     if (mounted) {
       setState(() {
-        _templateCards = templateCards;
-        _uploadCards = uploadCards;
+        // Built-in templates first, raw imports appended after
+        _templateCards = [...results[0], ...results[1]];
+        _uploadCards = results[2];
         _isLoading = false;
       });
     }
@@ -112,6 +124,23 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> _startRawImport() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      withData: true,
+    );
+    if (result == null || result.files.single.bytes == null) return;
+    if (!mounted) return;
+
+    setState(() => _isImporting = true);
+    try {
+      await DrawingRepository.createRawImportEntry(result.files.single.bytes!);
+      _loadData();
+    } finally {
+      if (mounted) setState(() => _isImporting = false);
+    }
+  }
+
   String _uploadLabel(String id) {
     // id: 'upload_YYYYMMDD_HHmmss' → 'Photo MM/DD'
     try {
@@ -153,12 +182,20 @@ class _HomeScreenState extends State<HomeScreen> {
                           color: Color(0xFF4C1D95),
                         ),
                       ),
-                      Text(
-                        '${_templateCards.length} animals',
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.deepPurple.shade300),
-                      ),
+                      _isImporting
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : IconButton(
+                              icon: const Icon(Icons.add_circle_outline),
+                              color: Colors.deepPurple,
+                              tooltip: 'Add photo to templates',
+                              onPressed: _startRawImport,
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
                     ],
                   ),
                   const SizedBox(height: 12),

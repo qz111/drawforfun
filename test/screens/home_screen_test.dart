@@ -40,4 +40,24 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Upload'), findsOneWidget);
   });
+
+  testWidgets('HomeScreen Templates header has + import button', (tester) async {
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.add_circle_outline), findsOneWidget);
+  });
+
+  testWidgets('HomeScreen shows raw import card in Templates grid', (tester) async {
+    // Pre-create a rawimport directory so it appears in the grid
+    final rawDir = Directory('${tempDir.path}/rawimport_20260315_143000')
+      ..createSync(recursive: true);
+    // Write minimal valid PNG header bytes so Image.file doesn't crash
+    File('${rawDir.path}/overlay.png')
+        .writeAsBytesSync([137, 80, 78, 71, 13, 10, 26, 10]);
+
+    await tester.pumpWidget(const MaterialApp(home: HomeScreen()));
+    await tester.pumpAndSettle();
+    // The raw import label 'Photo 03/15' should appear in the Templates grid
+    expect(find.text('Photo 03/15'), findsOneWidget);
+  });
 }
