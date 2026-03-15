@@ -27,7 +27,10 @@ class DrawingEntry {
     this.overlayAssetPath,
     this.overlayFilePath,
     required this.directoryPath,
-  });
+  }) : assert(
+          (overlayAssetPath == null) != (overlayFilePath == null),
+          'Exactly one of overlayAssetPath or overlayFilePath must be non-null.',
+        );
 
   /// Path to the serialized stroke history JSON file.
   String get strokesPath => '$directoryPath/strokes.json';

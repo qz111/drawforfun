@@ -38,5 +38,29 @@ void main() {
       expect(entry.overlayAssetPath, isNull);
       expect(entry.type, DrawingType.upload);
     });
+
+    test('throws if both overlayAssetPath and overlayFilePath are null', () {
+      expect(
+        () => DrawingEntry(
+          id: 'bad',
+          type: DrawingType.template,
+          directoryPath: '/tmp/bad',
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+    });
+
+    test('throws if both overlayAssetPath and overlayFilePath are set', () {
+      expect(
+        () => DrawingEntry(
+          id: 'bad',
+          type: DrawingType.upload,
+          overlayAssetPath: 'assets/line_art/cat.svg',
+          overlayFilePath: '/tmp/bad/overlay.png',
+          directoryPath: '/tmp/bad',
+        ),
+        throwsA(isA<AssertionError>()),
+      );
+    });
   });
 }
