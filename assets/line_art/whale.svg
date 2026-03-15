@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body -->
+  <ellipse cx="185" cy="215" rx="158" ry="105" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Tail flukes -->
+  <path d="M340,215 Q378,178 388,195 Q378,215 388,235 Q378,252 340,215" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Dorsal fin -->
+  <path d="M200,115 Q218,68 245,110" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Pectoral fin -->
+  <ellipse cx="118" cy="255" rx="30" ry="55" fill="none" stroke="#1a1a1a" stroke-width="2" transform="rotate(25 118 255)"/>
+  <!-- Head -->
+  <ellipse cx="55" cy="205" rx="42" ry="58" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Eye -->
+  <circle cx="72" cy="185" r="13" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="74" cy="185" r="6" fill="#1a1a1a"/>
+  <!-- Mouth (smile) -->
+  <path d="M30,225 Q55,248 80,232" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Blowhole -->
+  <ellipse cx="92" cy="128" rx="10" ry="7" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Water spout -->
+  <path d="M88,122 Q78,98 85,78" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <path d="M96,122 Q106,98 99,78" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Belly line -->
+  <path d="M45,248 Q185,295 335,248" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+</svg>

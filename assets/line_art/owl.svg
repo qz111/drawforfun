@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body -->
+  <ellipse cx="200" cy="285" rx="105" ry="105" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Wings -->
+  <path d="M98,260 Q62,220 70,165 Q95,240 98,260" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <path d="M302,260 Q338,220 330,165 Q305,240 302,260" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Head (round) -->
+  <circle cx="200" cy="162" r="85" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Ear tufts -->
+  <polygon points="168,85 155,48 182,82" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <polygon points="232,85 245,48 218,82" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Facial disc -->
+  <ellipse cx="200" cy="168" rx="62" ry="58" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Big eyes -->
+  <circle cx="175" cy="158" r="28" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="225" cy="158" r="28" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="175" cy="158" r="14" fill="#1a1a1a"/>
+  <circle cx="225" cy="158" r="14" fill="#1a1a1a"/>
+  <circle cx="170" cy="153" r="4" fill="white"/>
+  <circle cx="220" cy="153" r="4" fill="white"/>
+  <!-- Beak -->
+  <polygon points="200,178 190,198 210,198" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Belly feathers -->
+  <path d="M155,295 Q200,280 245,295" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <path d="M148,320 Q200,305 252,320" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Talons -->
+  <path d="M162,375 Q152,362 148,348 M162,375 Q158,360 165,348 M162,375 Q172,360 175,348" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+  <path d="M238,375 Q248,362 252,348 M238,375 Q242,360 235,348 M238,375 Q228,360 225,348" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+</svg>

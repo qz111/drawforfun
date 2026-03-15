@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body -->
+  <ellipse cx="195" cy="200" rx="130" ry="85" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Tail fin -->
+  <polygon points="325,200 380,148 380,252" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Top fin -->
+  <path d="M155,118 Q175,72 215,118" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Bottom fin -->
+  <path d="M165,282 Q185,320 210,282" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Pectoral fin -->
+  <ellipse cx="188" cy="215" rx="35" ry="20" fill="none" stroke="#1a1a1a" stroke-width="1.5" transform="rotate(-20 188 215)"/>
+  <!-- Eye -->
+  <circle cx="110" cy="188" r="22" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="110" cy="188" r="10" fill="#1a1a1a"/>
+  <circle cx="106" cy="184" r="3" fill="white"/>
+  <!-- Mouth -->
+  <path d="M70,200 Q60,210 70,220" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Scales (arc lines) -->
+  <path d="M155,165 Q175,155 195,165" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <path d="M195,165 Q215,155 235,165" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <path d="M235,165 Q255,155 275,165" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <path d="M165,195 Q185,185 205,195" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <path d="M205,195 Q225,185 245,195" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <path d="M155,225 Q175,215 195,225" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <path d="M195,225 Q215,215 235,225" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+</svg>

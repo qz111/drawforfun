@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body (slender) -->
+  <ellipse cx="200" cy="210" rx="10" ry="95" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Head -->
+  <circle cx="200" cy="108" r="18" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Antennae -->
+  <path d="M193,92 Q178,68 170,52" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="168" cy="50" r="5" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <path d="M207,92 Q222,68 230,52" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <circle cx="232" cy="50" r="5" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+  <!-- Upper wings (large) -->
+  <path d="M190,135 Q95,85 68,155 Q50,220 128,235 Q165,240 190,205" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <path d="M210,135 Q305,85 332,155 Q350,220 272,235 Q235,240 210,205" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Upper wing inner pattern -->
+  <ellipse cx="135" cy="172" rx="32" ry="38" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <ellipse cx="265" cy="172" rx="32" ry="38" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <!-- Lower wings (smaller) -->
+  <path d="M190,215 Q120,228 100,280 Q108,332 162,318 Q188,308 192,268" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <path d="M210,215 Q280,228 300,280 Q292,332 238,318 Q212,308 208,268" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Lower wing dots -->
+  <circle cx="155" cy="275" r="12" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+  <circle cx="245" cy="275" r="12" fill="none" stroke="#1a1a1a" stroke-width="1.5"/>
+</svg>

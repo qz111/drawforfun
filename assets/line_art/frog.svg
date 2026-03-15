@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Body -->
+  <ellipse cx="200" cy="295" rx="115" ry="88" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Head (wide) -->
+  <ellipse cx="200" cy="185" rx="95" ry="68" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Bulgy eyes on top -->
+  <circle cx="152" cy="138" r="30" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <circle cx="248" cy="138" r="30" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <circle cx="152" cy="138" r="14" fill="#1a1a1a"/>
+  <circle cx="248" cy="138" r="14" fill="#1a1a1a"/>
+  <circle cx="148" cy="134" r="4" fill="white"/>
+  <circle cx="244" cy="134" r="4" fill="white"/>
+  <!-- Wide mouth line -->
+  <path d="M122,198 Q200,218 278,198" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Nostril dots -->
+  <circle cx="188" cy="185" r="4" fill="#1a1a1a"/>
+  <circle cx="212" cy="185" r="4" fill="#1a1a1a"/>
+  <!-- Front legs -->
+  <path d="M95,268 Q68,298 72,332" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <path d="M305,268 Q332,298 328,332" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <!-- Front feet (webbed) -->
+  <path d="M72,332 Q58,345 52,358 M72,332 Q68,350 65,365 M72,332 Q80,348 78,362" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+  <path d="M328,332 Q342,345 348,358 M328,332 Q332,350 335,365 M328,332 Q320,348 322,362" stroke="#1a1a1a" stroke-width="2" fill="none"/>
+  <!-- Hind legs -->
+  <path d="M130,368 Q95,358 72,375" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+  <path d="M270,368 Q305,358 328,375" fill="none" stroke="#1a1a1a" stroke-width="2.5"/>
+</svg>
