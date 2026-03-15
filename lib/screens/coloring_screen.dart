@@ -76,11 +76,12 @@ class _ColoringScreenState extends State<ColoringScreen> {
       canPop: false,
       onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
+        final navigator = Navigator.of(context); // capture before await
         setState(() => _isSaving = true);
         await _autoSave();
         if (mounted) {
           setState(() => _isSaving = false);
-          Navigator.of(context).pop();
+          navigator.pop();
         }
       },
       child: Scaffold(
