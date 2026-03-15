@@ -6,7 +6,9 @@ import '../canvas/canvas_stack_widget.dart';
 import '../line_art/line_art_engine.dart';
 import '../palette/palette_widget.dart';
 import '../save/save_manager.dart';
+import '../templates/animal_template.dart';
 import '../widgets/brush_selector_widget.dart';
+import 'template_screen.dart';
 
 class ColoringScreen extends StatefulWidget {
   const ColoringScreen({super.key});
@@ -18,8 +20,20 @@ class ColoringScreen extends StatefulWidget {
 class _ColoringScreenState extends State<ColoringScreen> {
   final _controller = CanvasController();
   final _repaintKey = GlobalKey();
+
+  /// Photo-converted line art bytes (from LineArtEngine). Null when a template is active.
   Uint8List? _lineArtBytes;
+
+  /// Active animal template asset path. Null when photo line art is active or canvas is blank.
+  String? _activeTemplatePath;
+
   bool _isProcessing = false;
+
+  /// True when the canvas has any content worth saving or switching away from.
+  bool get _canvasHasContent =>
+      _controller.strokes.isNotEmpty ||
+      _lineArtBytes != null ||
+      _activeTemplatePath != null;
 
   @override
   void dispose() {
@@ -35,7 +49,12 @@ class _ColoringScreenState extends State<ColoringScreen> {
     setState(() => _isProcessing = true);
     try {
       final lineArt = await LineArtEngine.convert(result.files.single.bytes!);
-      if (mounted) setState(() => _lineArtBytes = lineArt);
+      if (mounted) {
+        setState(() {
+          _lineArtBytes = lineArt;
+          _activeTemplatePath = null; // photo overlay replaces any active template
+        });
+      }
     } finally {
       if (mounted) setState(() => _isProcessing = false);
     }
@@ -45,14 +64,12 @@ class _ColoringScreenState extends State<ColoringScreen> {
     final bytes = await SaveManager.captureCanvas(_repaintKey);
     if (bytes == null || !mounted) return;
 
-    // Save in-app
     final path = await SaveManager.saveToAppDocuments(bytes);
 
-    // Save to device gallery (iOS only; no-op on Windows)
+    // Gallery save (iOS only) failures are silent — in-app save is the primary path.
     await SaveManager.saveToGallery(bytes);
 
     if (mounted) {
-      // Gallery save (iOS only) failures are silent — in-app save is the primary path.
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(path != null ? 'Saved!' : 'Save failed'),
@@ -60,6 +77,68 @@ class _ColoringScreenState extends State<ColoringScreen> {
         ),
       );
     }
+  }
+
+  /// Entry point for the Templates toolbar button.
+  Future<void> _onTemplatesTapped() async {
+    if (_canvasHasContent) {
+      await _showSwitchTemplateDialog();
+    } else {
+      await _navigateToTemplateScreen();
+    }
+  }
+
+  /// Shows a dialog offering to save, discard, or cancel before switching templates.
+  Future<void> _showSwitchTemplateDialog() async {
+    await showDialog<void>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Switch template?'),
+        content: const Text('You have a drawing in progress.'),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await _saveArtwork();
+              if (mounted) await _navigateToTemplateScreen();
+            },
+            child: const Text('Save & Switch'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              _navigateToTemplateScreen();
+            },
+            child: const Text('Discard & Switch', style: TextStyle(color: Colors.orange)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Pushes TemplateScreen and applies the selection if one is made.
+  Future<void> _navigateToTemplateScreen() async {
+    final template = await Navigator.push<AnimalTemplate>(
+      context,
+      MaterialPageRoute(builder: (_) => const TemplateScreen()),
+    );
+    if (template != null && mounted) {
+      _applyTemplate(template);
+    }
+  }
+
+  /// Clears strokes and sets the active template, nulling photo overlay.
+  void _applyTemplate(AnimalTemplate template) {
+    _controller.clear();
+    setState(() {
+      _lineArtBytes = null;
+      _activeTemplatePath = template.assetPath;
+    });
   }
 
   @override
@@ -71,10 +150,31 @@ class _ColoringScreenState extends State<ColoringScreen> {
         foregroundColor: Colors.white,
         title: const Text('Draw For Fun', style: TextStyle(fontWeight: FontWeight.bold)),
         actions: [
-          IconButton(icon: const Icon(Icons.photo_library), onPressed: _isProcessing ? null : _pickAndConvertPhoto, tooltip: 'Load photo'),
-          IconButton(icon: const Icon(Icons.undo), onPressed: _controller.undo, tooltip: 'Undo'),
-          IconButton(icon: const Icon(Icons.delete_outline), onPressed: _isProcessing ? null : () => _showClearDialog(context), tooltip: 'Clear'),
-          IconButton(icon: const Icon(Icons.save_alt), onPressed: _isProcessing ? null : _saveArtwork, tooltip: 'Save'),
+          IconButton(
+            icon: const Icon(Icons.pets),
+            onPressed: _isProcessing ? null : _onTemplatesTapped,
+            tooltip: 'Templates',
+          ),
+          IconButton(
+            icon: const Icon(Icons.photo_library),
+            onPressed: _isProcessing ? null : _pickAndConvertPhoto,
+            tooltip: 'Load photo',
+          ),
+          IconButton(
+            icon: const Icon(Icons.undo),
+            onPressed: _controller.undo,
+            tooltip: 'Undo',
+          ),
+          IconButton(
+            icon: const Icon(Icons.delete_outline),
+            onPressed: _isProcessing ? null : () => _showClearDialog(context),
+            tooltip: 'Clear',
+          ),
+          IconButton(
+            icon: const Icon(Icons.save_alt),
+            onPressed: _isProcessing ? null : _saveArtwork,
+            tooltip: 'Save',
+          ),
         ],
       ),
       body: Column(
@@ -92,6 +192,7 @@ class _ColoringScreenState extends State<ColoringScreen> {
                       : CanvasStackWidget(
                           controller: _controller,
                           lineArtBytes: _lineArtBytes,
+                          lineArtAssetPath: _activeTemplatePath,
                         ),
                 ),
               ),
@@ -105,7 +206,6 @@ class _ColoringScreenState extends State<ColoringScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Brush selector
                 AnimatedBuilder(
                   animation: _controller,
                   builder: (_, __) => BrushSelectorWidget(
@@ -114,7 +214,6 @@ class _ColoringScreenState extends State<ColoringScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Color palette
                 AnimatedBuilder(
                   animation: _controller,
                   builder: (_, __) => PaletteWidget(
@@ -138,10 +237,17 @@ class _ColoringScreenState extends State<ColoringScreen> {
         content: const Text('This will erase everything. Are you sure?'),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
               _controller.clear();
+              setState(() {
+                _lineArtBytes = null;       // bug fix: was not clearing photo overlay
+                _activeTemplatePath = null;  // clear template overlay too
+              });
               Navigator.pop(context);
             },
             child: const Text('Clear', style: TextStyle(color: Colors.red)),
