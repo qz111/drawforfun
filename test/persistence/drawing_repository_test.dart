@@ -152,4 +152,96 @@ void main() {
       expect(entry.directoryPath, endsWith('cat'));
     });
   });
+
+  group('DrawingRepository.createRawImportEntry', () {
+    test('creates folder, writes overlay.png, returns rawImport entry', () async {
+      final fakeBytes = Uint8List.fromList([11, 22, 33]);
+      final entry = await DrawingRepository.createRawImportEntry(fakeBytes);
+      expect(entry.type, DrawingType.rawImport);
+      expect(entry.id.startsWith('rawimport_'), isTrue);
+      expect(entry.overlayFilePath, isNotNull);
+      expect(entry.overlayAssetPath, isNull);
+      final overlayFile = File(entry.overlayFilePath!);
+      expect(overlayFile.existsSync(), isTrue);
+      expect(overlayFile.readAsBytesSync(), fakeBytes);
+    });
+  });
+
+  group('DrawingRepository.listRawImportEntries', () {
+    test('returns empty list when no raw imports exist', () async {
+      final result = await DrawingRepository.listRawImportEntries();
+      expect(result, isEmpty);
+    });
+
+    test('lists rawimport_ folders, ignores upload_ and template folders', () async {
+      final rawDir = Directory('${tempDir.path}/rawimport_20260315_143000')
+        ..createSync(recursive: true);
+      File('${rawDir.path}/overlay.png').writeAsBytesSync([1, 2, 3]);
+      // These should be ignored:
+      Directory('${tempDir.path}/upload_20260315_120000').createSync(recursive: true);
+      Directory('${tempDir.path}/cat').createSync(recursive: true);
+
+      final result = await DrawingRepository.listRawImportEntries();
+      expect(result.length, 1);
+      expect(result[0].id, 'rawimport_20260315_143000');
+      expect(result[0].type, DrawingType.rawImport);
+    });
+
+    test('returns entries sorted newest-first', () async {
+      // overlay.png not required for listing — method constructs DrawingEntry from path string only
+      Directory('${tempDir.path}/rawimport_20260315_100000').createSync(recursive: true);
+      Directory('${tempDir.path}/rawimport_20260315_120000').createSync(recursive: true);
+
+      final result = await DrawingRepository.listRawImportEntries();
+      expect(result[0].id, 'rawimport_20260315_120000');
+      expect(result[1].id, 'rawimport_20260315_100000');
+    });
+  });
+
+  group('DrawingRepository.deleteEntry', () {
+    test('deletes upload entry directory', () async {
+      final fakeOverlay = Uint8List.fromList([1, 2, 3]);
+      final entry = await DrawingRepository.createUploadEntry(fakeOverlay);
+      expect(Directory(entry.directoryPath).existsSync(), isTrue);
+
+      await DrawingRepository.deleteEntry(entry);
+      expect(Directory(entry.directoryPath).existsSync(), isFalse);
+    });
+
+    test('deletes rawImport entry directory', () async {
+      final fakeBytes = Uint8List.fromList([4, 5, 6]);
+      final entry = await DrawingRepository.createRawImportEntry(fakeBytes);
+      expect(Directory(entry.directoryPath).existsSync(), isTrue);
+
+      await DrawingRepository.deleteEntry(entry);
+      expect(Directory(entry.directoryPath).existsSync(), isFalse);
+    });
+
+    test('deletes strokes and thumbnail alongside overlay', () async {
+      final entry = await DrawingRepository.createUploadEntry(
+        Uint8List.fromList([1]),
+      );
+      // Write strokes and thumbnail
+      await DrawingRepository.saveStrokes(entry, []);
+      await DrawingRepository.saveThumbnail(entry, Uint8List.fromList([9]));
+
+      await DrawingRepository.deleteEntry(entry);
+      expect(Directory(entry.directoryPath).existsSync(), isFalse);
+    });
+
+    test('throws StateError for template entry', () async {
+      const template = AnimalTemplate(
+        id: 'cat',
+        name: 'Cat',
+        emoji: '🐱',
+        assetPath: 'assets/line_art/cat.svg',
+      );
+      final entry = await DrawingRepository.templateEntry(template);
+      // deleteEntry is async — use expectLater so the Future's error is observed.
+      await expectLater(
+        DrawingRepository.deleteEntry(entry),
+        throwsA(isA<StateError>()),
+      );
+    });
+  });
 }

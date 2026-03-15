@@ -142,5 +142,55 @@ class DrawingRepository {
     );
   }
 
+  /// Creates a new raw-import entry:
+  /// 1. Generates a timestamp-based ID.
+  /// 2. Creates the entry directory.
+  /// 3. Writes [bytes] to `overlay.png` without any processing.
+  /// 4. Returns the [DrawingEntry].
+  static Future<DrawingEntry> createRawImportEntry(Uint8List bytes) async {
+    final now = DateTime.now();
+    final id =
+        'rawimport_${now.year}${_pad(now.month)}${_pad(now.day)}_${_pad(now.hour)}${_pad(now.minute)}${_pad(now.second)}';
+    final dir = await _entryDir(id);
+    final overlayPath = '${dir.path}/overlay.png';
+    await File(overlayPath).writeAsBytes(bytes);
+    return DrawingEntry(
+      id: id,
+      type: DrawingType.rawImport,
+      overlayFilePath: overlayPath,
+      directoryPath: dir.path,
+    );
+  }
+
+  /// Returns all raw-import entries, sorted newest-first.
+  static Future<List<DrawingEntry>> listRawImportEntries() async {
+    final base = await _drawingsDir();
+    if (!base.existsSync()) return [];
+    final entries = base
+        .listSync()
+        .whereType<Directory>()
+        .where((d) => _basename(d.path).startsWith('rawimport_'))
+        .map((d) {
+      final id = _basename(d.path);
+      return DrawingEntry(
+        id: id,
+        type: DrawingType.rawImport,
+        overlayFilePath: '${d.path}/overlay.png',
+        directoryPath: d.path,
+      );
+    }).toList()
+      ..sort((a, b) => b.id.compareTo(a.id));
+    return entries;
+  }
+
+  /// Permanently deletes a user-owned entry (upload or rawImport) and all its files.
+  /// Throws [StateError] if called on a built-in [DrawingType.template] entry.
+  static Future<void> deleteEntry(DrawingEntry entry) async {
+    if (entry.type == DrawingType.template) {
+      throw StateError('Cannot delete a built-in template entry: ${entry.id}');
+    }
+    await Directory(entry.directoryPath).delete(recursive: true);
+  }
+
   static String _pad(int n) => n.toString().padLeft(2, '0');
 }
