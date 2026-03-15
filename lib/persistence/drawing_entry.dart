@@ -4,7 +4,7 @@ enum DrawingType { template, upload, rawImport }
 /// Represents one saved drawing session.
 ///
 /// Template entries have [overlayAssetPath] (SVG asset).
-/// Upload entries have [overlayFilePath] (local PNG file).
+/// Upload and rawImport entries have [overlayFilePath] (local PNG file).
 /// Exactly one of the two is non-null.
 class DrawingEntry {
   /// Folder name: animal ID (e.g. 'cat') or timestamp (e.g. 'upload_20260315_120000').
@@ -15,7 +15,7 @@ class DrawingEntry {
   /// SVG asset path — templates only. e.g. 'assets/line_art/cat.svg'.
   final String? overlayAssetPath;
 
-  /// Absolute path to the converted line art PNG — uploads only.
+  /// Absolute path to the PNG file — uploads and raw imports.
   final String? overlayFilePath;
 
   /// Absolute path to this entry's storage folder.
