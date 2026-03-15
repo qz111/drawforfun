@@ -67,7 +67,7 @@ class _BrushButton extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(_icons[type], size: 28, color: isSelected ? Colors.deepPurple : Colors.grey.shade600),
+            Icon(_icons[type]!, size: 28, color: isSelected ? Colors.deepPurple : Colors.grey.shade600),
             const SizedBox(height: 4),
             Text(
               _labels[type]!,
