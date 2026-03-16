@@ -1,7 +1,7 @@
 workflows:
   ios-unsigned:
     name: iOS Unsigned IPA
-    instance_type: mac_mini_m1
+    instance_type: mac_mini_m2
     environment:
       flutter: stable
     scripts:
