@@ -1,0 +1,13 @@
+workflows:
+  ios-unsigned:
+    name: iOS Unsigned IPA
+    instance_type: mac_mini_m1
+    environment:
+      flutter: stable
+    scripts:
+      - name: Get dependencies
+        script: flutter pub get
+      - name: Build unsigned IPA
+        script: flutter build ipa --no-codesign
+    artifacts:
+      - build/ios/ipa/*.ipa
