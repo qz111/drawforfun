@@ -9,6 +9,21 @@ Uint8List _makeSolidColorPng(int width, int height, img.ColorRgb8 color) {
   return Uint8List.fromList(img.encodePng(image));
 }
 
+/// Creates a 100x100 PNG with a hard vertical edge: left half black, right half white.
+Uint8List _makeEdgePng() {
+  final image = img.Image(width: 100, height: 100);
+  for (int y = 0; y < 100; y++) {
+    for (int x = 0; x < 100; x++) {
+      if (x < 50) {
+        image.setPixelRgb(x, y, 0, 0, 0);
+      } else {
+        image.setPixelRgb(x, y, 255, 255, 255);
+      }
+    }
+  }
+  return Uint8List.fromList(img.encodePng(image));
+}
+
 void main() {
   group('LineArtEngine', () {
     test('returns non-empty bytes for a valid image', () async {
@@ -47,6 +62,22 @@ void main() {
       }
       // Very few opaque pixels expected (edge artifacts only at border)
       expect(opaquePixels, lessThan(outputImage.width * 2));
+    });
+
+    test('image with clear edges produces visible edge pixels', () async {
+      // A black-left / white-right image has a sharp vertical edge at x=50.
+      // The DoG should fire along that boundary and produce opaque pixels.
+      final inputBytes = _makeEdgePng();
+      final result = await LineArtEngine.convert(inputBytes);
+      expect(result, isNotNull);
+
+      final outputImage = img.decodePng(result!)!;
+      int opaquePixels = 0;
+      for (final pixel in outputImage) {
+        if (pixel.a > 0) opaquePixels++;
+      }
+      expect(opaquePixels, greaterThan(0),
+          reason: 'A hard edge image must produce at least one visible edge pixel');
     });
 
     test('image is resized to max 1024px on longest edge', () async {

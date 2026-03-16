@@ -84,7 +84,8 @@ class _HomeScreenState extends State<HomeScreen> {
       context,
       MaterialPageRoute(builder: (_) => ColoringScreen(entry: entry)),
     );
-    // Reload after returning — auto-save may have updated thumbnails
+    // Evict the stale cached thumbnail so Image.file re-reads from disk
+    await FileImage(File(entry.thumbnailPath)).evict();
     _loadData();
   }
 
@@ -118,6 +119,8 @@ class _HomeScreenState extends State<HomeScreen> {
           context,
           MaterialPageRoute(builder: (_) => ColoringScreen(entry: entry)),
         );
+        // Evict the stale cached thumbnail so Image.file re-reads from disk
+        await FileImage(File(entry.thumbnailPath)).evict();
         _loadData();
       }
     } finally {
@@ -399,6 +402,12 @@ class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
     }
     setState(() => _isDeleting = true);
     try {
+      // Evict cached FileImages so Windows releases file handles before deletion.
+      final overlayFile = widget.entry.overlayFilePath;
+      if (overlayFile != null) {
+        imageCache.evict(FileImage(File(overlayFile)));
+      }
+      imageCache.evict(FileImage(File(widget.entry.thumbnailPath)));
       await DrawingRepository.deleteEntry(widget.entry);
       widget.onConfirmed();
       if (mounted) Navigator.of(context).pop();

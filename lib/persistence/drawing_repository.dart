@@ -189,7 +189,28 @@ class DrawingRepository {
     if (entry.type == DrawingType.template) {
       throw StateError('Cannot delete a built-in template entry: ${entry.id}');
     }
-    await Directory(entry.directoryPath).delete(recursive: true);
+    final dir = Directory(entry.directoryPath);
+    if (!dir.existsSync()) return;
+    try {
+      await dir.delete(recursive: true);
+    } on PathAccessException {
+      if (!Platform.isWindows) rethrow;
+      // Fallback for Windows: OneDrive-synced paths can hold transient locks
+      // that block Directory.delete. cmd rmdir /s /q bypasses these locks.
+      // Normalize to backslashes: forward slashes in the path are treated
+      // as switch characters by cmd's rmdir and cause "Invalid switch" errors.
+      final winPath = entry.directoryPath.replaceAll('/', '\\');
+      final result = await Process.run(
+        'cmd', ['/c', 'rmdir', '/s', '/q', winPath],
+      );
+      if (result.exitCode != 0 && dir.existsSync()) {
+        throw PathAccessException(
+          entry.directoryPath,
+          OSError('rmdir failed: ${result.stderr}', result.exitCode),
+          'delete',
+        );
+      }
+    }
   }
 
   static String _pad(int n) => n.toString().padLeft(2, '0');
