@@ -74,5 +74,21 @@ void main() {
         throwsA(isA<AssertionError>()),
       );
     });
+
+    test('DrawingType has customTemplate value', () {
+      expect(DrawingType.values, contains(DrawingType.customTemplate));
+    });
+
+    test('customTemplate entry with overlayFilePath satisfies assert', () {
+      const entry = DrawingEntry(
+        id: 'custom_20260317_120000_042',
+        type: DrawingType.customTemplate,
+        overlayFilePath: '/tmp/custom_20260317_120000_042/overlay.png',
+        directoryPath: '/tmp/custom_20260317_120000_042',
+      );
+      expect(entry.type, DrawingType.customTemplate);
+      expect(entry.overlayFilePath, isNotNull);
+      expect(entry.overlayAssetPath, isNull);
+    });
   });
 }

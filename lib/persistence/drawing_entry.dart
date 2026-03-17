@@ -1,5 +1,5 @@
-/// Identifies whether a drawing is a built-in animal template, a user upload, or a raw import.
-enum DrawingType { template, upload, rawImport }
+/// Identifies whether a drawing is a built-in animal template, a user upload, a raw import, or a custom template.
+enum DrawingType { template, upload, rawImport, customTemplate }
 
 /// Represents one saved drawing session.
 ///
