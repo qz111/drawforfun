@@ -29,7 +29,12 @@ class ContourCreatorController extends ChangeNotifier {
   Stroke? _currentStroke;
 
   /// Optional base image shown beneath strokes (Remix mode).
-  ui.Image? backgroundImage;
+  ui.Image? _backgroundImage;
+  ui.Image? get backgroundImage => _backgroundImage;
+  set backgroundImage(ui.Image? value) {
+    _backgroundImage = value;
+    notifyListeners();
+  }
 
   List<Stroke> get pencilStrokes => List.unmodifiable(_pencilStrokes);
   List<Stroke> get eraserStrokes => List.unmodifiable(_eraserStrokes);
@@ -123,18 +128,6 @@ class ContourCreatorPainter extends CustomPainter {
     required this.backgroundImage,
   });
 
-  static final Paint _pencilPaint = Paint()
-    ..color = Colors.black
-    ..strokeWidth = 6.0
-    ..strokeCap = StrokeCap.round
-    ..style = PaintingStyle.stroke;
-
-  static final Paint _eraserPaint = Paint()
-    ..blendMode = BlendMode.clear
-    ..strokeWidth = 24.0
-    ..strokeCap = StrokeCap.round
-    ..style = PaintingStyle.stroke;
-
   /// Draws consecutive point pairs of [stroke] onto [canvas] using [paint].
   /// Strokes with fewer than 2 points are skipped.
   void _drawStroke(Canvas canvas, Stroke stroke, Paint paint) {
@@ -147,6 +140,18 @@ class ContourCreatorPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    final pencilPaint = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 6.0
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    final eraserPaint = Paint()
+      ..blendMode = BlendMode.clear
+      ..strokeWidth = 24.0
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
     // saveLayer is required so that BlendMode.clear erases within the layer
     // rather than cutting through to the widget background.
     canvas.saveLayer(Offset.zero & size, Paint());
@@ -168,22 +173,22 @@ class ContourCreatorPainter extends CustomPainter {
     // interleaving (pencil after eraser after pencil) is not preserved.
     // 2. Committed pencil strokes.
     for (final stroke in pencilStrokes) {
-      _drawStroke(canvas, stroke, _pencilPaint);
+      _drawStroke(canvas, stroke, pencilPaint);
     }
 
     // 3. In-progress pencil stroke (if pencil tool active).
     if (activeTool == ContourTool.pencil && currentStroke != null) {
-      _drawStroke(canvas, currentStroke!, _pencilPaint);
+      _drawStroke(canvas, currentStroke!, pencilPaint);
     }
 
     // 4. Committed eraser strokes.
     for (final stroke in eraserStrokes) {
-      _drawStroke(canvas, stroke, _eraserPaint);
+      _drawStroke(canvas, stroke, eraserPaint);
     }
 
     // 5. In-progress eraser stroke (if eraser tool active).
     if (activeTool == ContourTool.eraser && currentStroke != null) {
-      _drawStroke(canvas, currentStroke!, _eraserPaint);
+      _drawStroke(canvas, currentStroke!, eraserPaint);
     }
 
     canvas.restore();
@@ -224,7 +229,11 @@ class _ContourCreatorScreenState extends State<ContourCreatorScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _loadRemixImage());
+    // File-path images don't need canvas size — load immediately after first frame.
+    if (widget.remixSourcePath != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _loadRemixImage());
+    }
+    // SVG assets need _canvasSize — loading is triggered from the LayoutBuilder callback.
   }
 
   @override
@@ -257,7 +266,7 @@ class _ContourCreatorScreenState extends State<ContourCreatorScreen> {
       }
     }
     if (img != null && mounted) {
-      setState(() => _controller.backgroundImage = img);
+      _controller.backgroundImage = img; // setter calls notifyListeners(), no setState needed
     }
   }
 
@@ -355,7 +364,10 @@ class _ContourCreatorScreenState extends State<ContourCreatorScreen> {
                 final sz = Size(constraints.maxWidth, constraints.maxHeight);
                 if (_canvasSize != sz) {
                   WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) setState(() => _canvasSize = sz);
+                    if (mounted && _canvasSize != sz) {
+                      setState(() => _canvasSize = sz);
+                      _loadRemixImage(); // now _canvasSize is set before loading
+                    }
                   });
                 }
                 return GestureDetector(
@@ -440,25 +452,31 @@ class _ContourCreatorScreenState extends State<ContourCreatorScreen> {
                             padding: EdgeInsets.symmetric(vertical: 8),
                             child: Divider(height: 1, thickness: 1),
                           ),
-                          Opacity(
-                            opacity:
-                                _controller.hasUnsavedChanges ? 1.0 : 0.4,
-                            child: _ToolButton(
-                              icon: Icons.undo,
-                              tooltip: 'Undo',
-                              isActive: false,
-                              onTap: _controller.undo,
+                          IgnorePointer(
+                            ignoring: !_controller.hasUnsavedChanges,
+                            child: Opacity(
+                              opacity:
+                                  _controller.hasUnsavedChanges ? 1.0 : 0.4,
+                              child: _ToolButton(
+                                icon: Icons.undo,
+                                tooltip: 'Undo',
+                                isActive: false,
+                                onTap: _controller.undo,
+                              ),
                             ),
                           ),
                           const SizedBox(height: 6),
-                          Opacity(
-                            opacity:
-                                _controller.hasUnsavedChanges ? 1.0 : 0.4,
-                            child: _ToolButton(
-                              icon: Icons.delete_outline,
-                              tooltip: 'Clear',
-                              isActive: false,
-                              onTap: _controller.clear,
+                          IgnorePointer(
+                            ignoring: !_controller.hasUnsavedChanges,
+                            child: Opacity(
+                              opacity:
+                                  _controller.hasUnsavedChanges ? 1.0 : 0.4,
+                              child: _ToolButton(
+                                icon: Icons.delete_outline,
+                                tooltip: 'Clear',
+                                isActive: false,
+                                onTap: _controller.clear,
+                              ),
                             ),
                           ),
                         ],
