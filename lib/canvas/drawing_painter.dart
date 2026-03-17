@@ -8,15 +8,25 @@ class DrawingPainter extends CustomPainter {
   final List<Stroke> strokes;
   final Stroke? currentStroke;
 
-  const DrawingPainter({required this.strokes, required this.currentStroke});
+  /// When false, the white background fill is skipped (used when a background
+  /// image is rendered as a separate widget below this painter).
+  final bool paintBackground;
+
+  const DrawingPainter({
+    required this.strokes,
+    required this.currentStroke,
+    this.paintBackground = true,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
-    // White background
-    canvas.drawRect(
-      Rect.fromLTWH(0, 0, size.width, size.height),
-      Paint()..color = Colors.white,
-    );
+    // White background (skipped when a background image is rendered separately)
+    if (paintBackground) {
+      canvas.drawRect(
+        Rect.fromLTWH(0, 0, size.width, size.height),
+        Paint()..color = Colors.white,
+      );
+    }
 
     // Committed strokes
     for (final stroke in strokes) {
@@ -32,6 +42,7 @@ class DrawingPainter extends CustomPainter {
   @override
   bool shouldRepaint(DrawingPainter oldDelegate) {
     return oldDelegate.strokes != strokes ||
-        oldDelegate.currentStroke != currentStroke;
+        oldDelegate.currentStroke != currentStroke ||
+        oldDelegate.paintBackground != paintBackground;
   }
 }

@@ -126,7 +126,14 @@ class _ColoringScreenState extends State<ColoringScreen> {
                         child: CanvasStackWidget(
                           controller: _controller,
                           lineArtAssetPath: widget.entry.overlayAssetPath,
-                          lineArtFilePath: widget.entry.overlayFilePath,
+                          // Raw imports are opaque photos — render as background
+                          // so strokes drawn on top are visible.
+                          lineArtFilePath: widget.entry.type != DrawingType.rawImport
+                              ? widget.entry.overlayFilePath
+                              : null,
+                          backgroundFilePath: widget.entry.type == DrawingType.rawImport
+                              ? widget.entry.overlayFilePath
+                              : null,
                         ),
                       ),
                     ),
