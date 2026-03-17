@@ -35,6 +35,7 @@ void main() {
 
     test('undo removes last pencil stroke', () {
       controller.startStroke(const Offset(0, 0));
+      controller.addPoint(const Offset(10, 10));
       controller.endStroke();
       expect(controller.pencilStrokes.length, 1);
       controller.undo();
@@ -45,6 +46,7 @@ void main() {
     test('undo removes last eraser stroke', () {
       controller.activeTool = ContourTool.eraser;
       controller.startStroke(const Offset(0, 0));
+      controller.addPoint(const Offset(10, 10));
       controller.endStroke();
       controller.undo();
       expect(controller.eraserStrokes, isEmpty);
@@ -53,10 +55,12 @@ void main() {
     test('undo interleaved pencil and eraser in correct order', () {
       // pencil stroke first
       controller.startStroke(const Offset(0, 0));
+      controller.addPoint(const Offset(10, 10));
       controller.endStroke(); // history: [pencil]
       // then eraser stroke
       controller.activeTool = ContourTool.eraser;
       controller.startStroke(const Offset(5, 5));
+      controller.addPoint(const Offset(15, 15));
       controller.endStroke(); // history: [pencil, eraser]
 
       controller.undo(); // removes eraser
@@ -89,6 +93,15 @@ void main() {
       controller.endStroke();
       controller.clear();
       expect(controller.backgroundImage, isNull); // null → still null = correct
+    });
+
+    test('endStroke with single point discards stroke and does not add to history', () {
+      controller.startStroke(const Offset(10, 10));
+      // No addPoint call — stroke has exactly 1 point.
+      controller.endStroke();
+      expect(controller.pencilStrokes, isEmpty);
+      expect(controller.hasUnsavedChanges, isFalse);
+      expect(controller.currentStroke, isNull);
     });
 
     test('notifies listeners on stroke commit', () {

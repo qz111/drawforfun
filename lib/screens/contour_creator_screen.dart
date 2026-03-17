@@ -60,6 +60,11 @@ class ContourCreatorController extends ChangeNotifier {
 
   void endStroke() {
     if (_currentStroke == null) return;
+    if (_currentStroke!.points.length < 2) {  // discard single-tap noise
+      _currentStroke = null;
+      notifyListeners();
+      return;
+    }
     if (_activeTool == ContourTool.pencil) {
       _pencilStrokes.add(_currentStroke!);
       _history.add((isPencil: true));
@@ -154,6 +159,9 @@ class ContourCreatorPainter extends CustomPainter {
       canvas.drawImageRect(backgroundImage!, src, dst, Paint());
     }
 
+    // Note: all pencil strokes are rendered before all eraser strokes regardless
+    // of temporal draw order. This is an intentional simplification — temporal
+    // interleaving (pencil after eraser after pencil) is not preserved.
     // 2. Committed pencil strokes.
     for (final stroke in pencilStrokes) {
       _drawStroke(canvas, stroke, _pencilPaint);
