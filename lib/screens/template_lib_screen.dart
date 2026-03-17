@@ -8,6 +8,7 @@ import '../persistence/drawing_repository.dart';
 import '../templates/animal_templates.dart';
 import '../widgets/drawing_card_widget.dart';
 import 'coloring_screen.dart';
+import 'contour_creator_screen.dart';
 
 class TemplateLibScreen extends StatefulWidget {
   const TemplateLibScreen({super.key});
@@ -20,6 +21,7 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
   bool _isLoading = true;
   bool _isImporting = false;
   List<_CardData> _cards = [];
+  List<_CardData> _customCards = [];
 
   @override
   void initState() {
@@ -49,11 +51,19 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
                 hasThumbnail: File(entry.thumbnailPath).existsSync(),
               ))
           .toList()),
+      DrawingRepository.listCustomTemplateEntries().then((entries) => entries
+          .map((entry) => _CardData(
+                entry: entry,
+                label: _customLabel(entry.id),
+                emoji: '🎨',
+                hasThumbnail: File(entry.thumbnailPath).existsSync(),
+              ))
+          .toList()),
     ]);
     if (mounted) {
       setState(() {
-        // Built-in templates first, then raw import cards appended at the end.
         _cards = [...results[0], ...results[1]];
+        _customCards = results[2];
         _isLoading = false;
       });
     }
@@ -65,6 +75,19 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
       MaterialPageRoute(builder: (_) => ColoringScreen(entry: entry)),
     );
     await FileImage(File(entry.thumbnailPath)).evict();
+    _loadData();
+  }
+
+  Future<void> _openRemix(DrawingEntry entry) async {
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ContourCreatorScreen(
+          remixSourcePath: entry.overlayFilePath,
+          remixAssetPath: entry.overlayAssetPath,
+        ),
+      ),
+    );
     _loadData();
   }
 
@@ -90,7 +113,7 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
       builder: (_) => DeleteConfirmationDialog(
         entry: card.entry,
         onConfirmed: () {
-          setState(() => _cards.remove(card));
+          _loadData();
         },
       ),
     );
@@ -103,6 +126,66 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
     } catch (_) {
       return 'Photo';
     }
+  }
+
+  String _customLabel(String id) {
+    try {
+      final date = id.split('_')[1];
+      return 'Template ${date.substring(4, 6)}/${date.substring(6, 8)}';
+    } catch (_) {
+      return 'Template';
+    }
+  }
+
+  void _showRemixSheet(_CardData card) {
+    showModalBottomSheet<void>(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text(
+                'What would you like to do?',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(
+                    child: _SheetOption(
+                      label: 'Color it!',
+                      icon: Icons.brush,
+                      color: Colors.green,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _openEntry(card.entry);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _SheetOption(
+                      label: 'Remix it',
+                      icon: Icons.edit,
+                      color: Colors.deepPurple,
+                      onTap: () {
+                        Navigator.pop(context);
+                        _openRemix(card.entry);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -154,7 +237,10 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
                     style: TextStyle(fontSize: 13, color: Colors.black54),
                   ),
                   const SizedBox(height: 12),
-                  Expanded(
+
+                  // ── Main carousel (built-ins + raw imports) ───────────────
+                  SizedBox(
+                    height: 200,
                     child: ScrollConfiguration(
                       behavior: ScrollConfiguration.of(context).copyWith(
                         dragDevices: {
@@ -164,27 +250,91 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
                       ),
                       child: ListView(
                         scrollDirection: Axis.horizontal,
-                        children: _cards.map((card) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 12),
-                          child: SizedBox(
-                            width: 200,
-                            child: DrawingCardWidget(
-                              entry: card.entry,
-                              label: card.label,
-                              emoji: card.emoji,
-                              hasThumbnail: card.hasThumbnail,
-                              onTap: () => _openEntry(card.entry),
-                              onDelete: card.entry.type == DrawingType.template
-                                  ? null
-                                  : () => _confirmDelete(card),
+                        children: [
+                          // Create Blank Canvas — static first card
+                          Padding(
+                            padding: const EdgeInsets.only(right: 12),
+                            child: SizedBox(
+                              width: 200,
+                              child: _CreateBlankCard(
+                                onTap: () async {
+                                  await Navigator.push<void>(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const ContourCreatorScreen(),
+                                    ),
+                                  );
+                                  _loadData();
+                                },
+                              ),
                             ),
                           ),
-                        );
-                      }).toList(),
+                          // Built-in + rawImport cards
+                          ..._cards.map((card) => Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: SizedBox(
+                                  width: 200,
+                                  child: DrawingCardWidget(
+                                    entry: card.entry,
+                                    label: card.label,
+                                    emoji: card.emoji,
+                                    hasThumbnail: card.hasThumbnail,
+                                    onTap: () => _openEntry(card.entry),
+                                    onLongPress: () => _showRemixSheet(card),
+                                    onDelete: card.entry.type ==
+                                            DrawingType.template
+                                        ? null
+                                        : () => _confirmDelete(card),
+                                  ),
+                                ),
+                              )),
+                        ],
                       ),
                     ),
                   ),
+
+                  // ── My Templates section (only when non-empty) ────────────
+                  if (_customCards.isNotEmpty) ...[
+                    const SizedBox(height: 12),
+                    const Text(
+                      'My Templates',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 14),
+                    ),
+                    const SizedBox(height: 8),
+                    SizedBox(
+                      height: 200,
+                      child: ScrollConfiguration(
+                        behavior: ScrollConfiguration.of(context).copyWith(
+                          dragDevices: {
+                            PointerDeviceKind.touch,
+                            PointerDeviceKind.mouse,
+                          },
+                        ),
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: _customCards.map((card) {
+                            return Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: SizedBox(
+                                width: 200,
+                                child: DrawingCardWidget(
+                                  entry: card.entry,
+                                  label: card.label,
+                                  emoji: card.emoji,
+                                  hasThumbnail: card.hasThumbnail,
+                                  onTap: () => _openEntry(card.entry),
+                                  onLongPress: () => _showRemixSheet(card),
+                                  onDelete: () => _confirmDelete(card),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -315,6 +465,99 @@ class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
               : const Text('Delete', style: TextStyle(color: Colors.red)),
         ),
       ],
+    );
+  }
+}
+
+// ── _SheetOption ─────────────────────────────────────────────────────────────
+
+class _SheetOption extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final Color color;
+  final VoidCallback onTap;
+
+  const _SheetOption({
+    required this.label,
+    required this.icon,
+    required this.color,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 28),
+            const SizedBox(height: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── _CreateBlankCard ──────────────────────────────────────────────────────────
+
+class _CreateBlankCard extends StatelessWidget {
+  final VoidCallback onTap;
+  const _CreateBlankCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: Colors.deepPurple.shade300,
+            width: 2.5,
+            strokeAlign: BorderSide.strokeAlignInside,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 6,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.edit, size: 40, color: Colors.deepPurple.shade400),
+            const SizedBox(height: 10),
+            Text(
+              'Create Blank Canvas',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.deepPurple.shade400,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
