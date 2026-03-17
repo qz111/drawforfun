@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../persistence/drawing_entry.dart';
 import '../persistence/drawing_repository.dart';
@@ -154,9 +155,16 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
                   ),
                   const SizedBox(height: 12),
                   Expanded(
-                    child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      children: _cards.map((card) {
+                    child: ScrollConfiguration(
+                      behavior: ScrollConfiguration.of(context).copyWith(
+                        dragDevices: {
+                          PointerDeviceKind.touch,
+                          PointerDeviceKind.mouse,
+                        },
+                      ),
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        children: _cards.map((card) {
                         return Padding(
                           padding: const EdgeInsets.only(right: 12),
                           child: SizedBox(
@@ -174,6 +182,7 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
                           ),
                         );
                       }).toList(),
+                      ),
                     ),
                   ),
                 ],

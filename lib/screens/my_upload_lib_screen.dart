@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import '../line_art/line_art_engine.dart';
 import '../persistence/drawing_entry.dart';
@@ -169,10 +170,17 @@ class _MyUploadLibScreenState extends State<MyUploadLibScreen> {
                                   fontSize: 14, color: Colors.black45),
                             ),
                           )
-                        : ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: _cards.length,
-                            itemBuilder: (_, i) {
+                        : ScrollConfiguration(
+                            behavior: ScrollConfiguration.of(context).copyWith(
+                              dragDevices: {
+                                PointerDeviceKind.touch,
+                                PointerDeviceKind.mouse,
+                              },
+                            ),
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _cards.length,
+                              itemBuilder: (_, i) {
                               final card = _cards[i];
                               return Padding(
                                 padding: const EdgeInsets.only(right: 12),
@@ -188,6 +196,7 @@ class _MyUploadLibScreenState extends State<MyUploadLibScreen> {
                                 ),
                               );
                             },
+                            ),
                           ),
                   ),
                 ],
