@@ -33,6 +33,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: MyUploadLibScreen()));
     await tester.pumpAndSettle();
     expect(find.byType(ListView), findsNothing); // no ListView when empty
+    expect(find.text('No uploads yet.\nTap + Upload to add a photo.'), findsOneWidget);
   });
 
   testWidgets('upload card appears with delete icon', (tester) async {
@@ -84,14 +85,14 @@ void main() {
     final b = int.parse(match.group(2)!);
 
     await tester.enterText(find.byType(TextField), '${a + b}');
-    await tester.runAsync(() async {
-      await tester.tap(find.text('Delete'));
-      final deadline = DateTime.now().add(const Duration(seconds: 2));
-      while (uploadDir.existsSync() && DateTime.now().isBefore(deadline)) {
-        await Future<void>.delayed(const Duration(milliseconds: 10));
-      }
-    });
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.tap(find.text('Delete'));
+    // In test mode DrawingRepository.deleteEntry() is synchronous, so one
+    // pump() is enough to process the tap, run _onDelete to completion, and
+    // call Navigator.pop().
+    await tester.pump();
+    // pumpAndSettle is avoided because the autofocus TextField's cursor-blink
+    // timer prevents settling indefinitely. Pump enough to complete the dialog
+    // exit route animation (~300 ms for Material PopupRoute).
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('Delete this image?'), findsNothing);

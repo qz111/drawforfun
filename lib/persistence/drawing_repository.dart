@@ -191,6 +191,12 @@ class DrawingRepository {
     }
     final dir = Directory(entry.directoryPath);
     if (!dir.existsSync()) return;
+    // In test mode use synchronous deletion so the future completes without
+    // requiring runAsync (avoids fake-async / real-event-loop ordering issues).
+    if (_testOverrideDir != null) {
+      dir.deleteSync(recursive: true);
+      return;
+    }
     try {
       await dir.delete(recursive: true);
     } on PathAccessException {
