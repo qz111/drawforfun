@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:path_provider/path_provider.dart';
@@ -162,6 +163,42 @@ class DrawingRepository {
     );
   }
 
+  /// Creates a new custom template entry:
+  /// 1. Generates a collision-resistant timestamped ID.
+  /// 2. Creates the entry directory.
+  /// 3. Writes [transparentPng] to `overlay.png`.
+  /// 4. Returns the [DrawingEntry].
+  static Future<DrawingEntry> createCustomTemplateEntry(
+      Uint8List transparentPng) async {
+    final base = await _drawingsDir();
+    final rng = Random();
+    String id;
+    Directory dir;
+    int attempts = 0;
+    do {
+      if (attempts >= 3) {
+        throw StateError(
+            'createCustomTemplateEntry: could not generate unique ID after 3 attempts');
+      }
+      final now = DateTime.now();
+      final nnn = rng.nextInt(1000).toString().padLeft(3, '0');
+      id =
+          'custom_${now.year}${_pad(now.month)}${_pad(now.day)}_${_pad(now.hour)}${_pad(now.minute)}${_pad(now.second)}_$nnn';
+      dir = Directory('${base.path}/$id');
+      attempts++;
+    } while (dir.existsSync());
+
+    dir.createSync(recursive: true);
+    final overlayPath = '${dir.path}/overlay.png';
+    await File(overlayPath).writeAsBytes(transparentPng);
+    return DrawingEntry(
+      id: id,
+      type: DrawingType.customTemplate,
+      overlayFilePath: overlayPath,
+      directoryPath: dir.path,
+    );
+  }
+
   /// Returns all raw-import entries, sorted newest-first.
   static Future<List<DrawingEntry>> listRawImportEntries() async {
     final base = await _drawingsDir();
@@ -175,6 +212,27 @@ class DrawingRepository {
       return DrawingEntry(
         id: id,
         type: DrawingType.rawImport,
+        overlayFilePath: '${d.path}/overlay.png',
+        directoryPath: d.path,
+      );
+    }).toList()
+      ..sort((a, b) => b.id.compareTo(a.id));
+    return entries;
+  }
+
+  /// Returns all custom template entries, sorted newest-first.
+  static Future<List<DrawingEntry>> listCustomTemplateEntries() async {
+    final base = await _drawingsDir();
+    if (!base.existsSync()) return [];
+    final entries = base
+        .listSync()
+        .whereType<Directory>()
+        .where((d) => _basename(d.path).startsWith('custom_'))
+        .map((d) {
+      final id = _basename(d.path);
+      return DrawingEntry(
+        id: id,
+        type: DrawingType.customTemplate,
         overlayFilePath: '${d.path}/overlay.png',
         directoryPath: d.path,
       );

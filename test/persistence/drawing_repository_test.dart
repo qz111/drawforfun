@@ -198,6 +198,60 @@ void main() {
     });
   });
 
+  group('DrawingRepository.createCustomTemplateEntry', () {
+    test('creates folder, writes overlay.png, returns customTemplate entry', () async {
+      final fakeBytes = Uint8List.fromList([1, 2, 3, 4]);
+      final entry = await DrawingRepository.createCustomTemplateEntry(fakeBytes);
+      expect(entry.type, DrawingType.customTemplate);
+      expect(entry.id.startsWith('custom_'), isTrue);
+      expect(entry.overlayFilePath, isNotNull);
+      expect(entry.overlayAssetPath, isNull);
+      final overlayFile = File(entry.overlayFilePath!);
+      expect(overlayFile.existsSync(), isTrue);
+      expect(overlayFile.readAsBytesSync(), fakeBytes);
+    });
+
+    test('ID has format custom_YYYYMMDD_HHmmss_NNN', () async {
+      final entry = await DrawingRepository.createCustomTemplateEntry(
+          Uint8List.fromList([0]));
+      // Match: custom_ + 8 digit date + _ + 6 digit time + _ + 3 digit suffix
+      expect(entry.id, matches(RegExp(r'^custom_\d{8}_\d{6}_\d{3}$')));
+    });
+  });
+
+  group('DrawingRepository.listCustomTemplateEntries', () {
+    test('returns empty list when no custom templates exist', () async {
+      final result = await DrawingRepository.listCustomTemplateEntries();
+      expect(result, isEmpty);
+    });
+
+    test('lists custom_ folders, ignores other prefixes', () async {
+      final customDir = Directory('${tempDir.path}/custom_20260317_120000_042')
+        ..createSync(recursive: true);
+      File('${customDir.path}/overlay.png').writeAsBytesSync([1, 2, 3]);
+      // These must be ignored:
+      Directory('${tempDir.path}/upload_20260315_120000').createSync(recursive: true);
+      Directory('${tempDir.path}/rawimport_20260315_143000').createSync(recursive: true);
+      Directory('${tempDir.path}/cat').createSync(recursive: true);
+
+      final result = await DrawingRepository.listCustomTemplateEntries();
+      expect(result.length, 1);
+      expect(result[0].id, 'custom_20260317_120000_042');
+      expect(result[0].type, DrawingType.customTemplate);
+      expect(result[0].overlayFilePath, isNotNull);
+      expect(result[0].overlayAssetPath, isNull);
+    });
+
+    test('returns entries sorted newest-first', () async {
+      Directory('${tempDir.path}/custom_20260317_100000_001').createSync(recursive: true);
+      Directory('${tempDir.path}/custom_20260317_120000_002').createSync(recursive: true);
+
+      final result = await DrawingRepository.listCustomTemplateEntries();
+      expect(result[0].id, 'custom_20260317_120000_002');
+      expect(result[1].id, 'custom_20260317_100000_001');
+    });
+  });
+
   group('DrawingRepository.deleteEntry', () {
     test('deletes upload entry directory', () async {
       final fakeOverlay = Uint8List.fromList([1, 2, 3]);
@@ -224,6 +278,15 @@ void main() {
       // Write strokes and thumbnail
       await DrawingRepository.saveStrokes(entry, []);
       await DrawingRepository.saveThumbnail(entry, Uint8List.fromList([9]));
+
+      await DrawingRepository.deleteEntry(entry);
+      expect(Directory(entry.directoryPath).existsSync(), isFalse);
+    });
+
+    test('deletes customTemplate entry directory', () async {
+      final entry = await DrawingRepository.createCustomTemplateEntry(
+          Uint8List.fromList([1, 2, 3]));
+      expect(Directory(entry.directoryPath).existsSync(), isTrue);
 
       await DrawingRepository.deleteEntry(entry);
       expect(Directory(entry.directoryPath).existsSync(), isFalse);
