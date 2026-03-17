@@ -50,6 +50,14 @@ void main() {
 
     await tester.pumpWidget(const MaterialApp(home: TemplateLibScreen()));
     await tester.pumpAndSettle();
+    // Built-in templates come first; scroll the horizontal list until the
+    // rawImport card is built and visible.
+    await tester.scrollUntilVisible(
+      find.text('Photo 03/15'),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
     expect(find.text('Photo 03/15'), findsOneWidget);
     expect(find.byIcon(Icons.delete_outline), findsOneWidget);
   });
@@ -62,7 +70,12 @@ void main() {
 
     await tester.pumpWidget(const MaterialApp(home: TemplateLibScreen()));
     await tester.pumpAndSettle();
-    await tester.ensureVisible(find.byIcon(Icons.delete_outline));
+    // Built-in templates come first; scroll until the delete icon is reachable.
+    await tester.scrollUntilVisible(
+      find.byIcon(Icons.delete_outline),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     await tester.pumpAndSettle();
     await tester.tap(find.byIcon(Icons.delete_outline));
     await tester.pumpAndSettle();

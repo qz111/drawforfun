@@ -51,10 +51,8 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
     ]);
     if (mounted) {
       setState(() {
-        // rawImport cards first (newest user content), then built-in templates.
-        // This ensures user-uploaded photos are immediately visible in the
-        // horizontal carousel without scrolling.
-        _cards = [...results[1], ...results[0]];
+        // Built-in templates first, then raw import cards appended at the end.
+        _cards = [...results[0], ...results[1]];
         _isLoading = false;
       });
     }
