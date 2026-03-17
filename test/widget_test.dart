@@ -16,11 +16,11 @@ void main() {
     if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
   });
 
-  testWidgets('App launches and shows HomeScreen', (tester) async {
+  testWidgets('App launches and shows MainMenuScreen', (tester) async {
     await tester.pumpWidget(const DrawForFunApp());
     await tester.pumpAndSettle();
     expect(find.text('🎨 Draw For Fun'), findsOneWidget);
-    expect(find.text('🐾 Built-in Templates'), findsOneWidget);
-    expect(find.text('📷 My Uploads'), findsOneWidget);
+    expect(find.text('Templates'), findsOneWidget);
+    expect(find.text('My Uploads'), findsOneWidget);
   });
 }

@@ -26,7 +26,7 @@ class Stroke {
   /// JSON key 'brushType' maps to the Dart field [type].
   Map<String, dynamic> toJson() => {
         'brushType': type.name,
-        'color': color.value,
+        'color': color.toARGB32(),
         'points': points
             .map((p) => {'dx': p.dx, 'dy': p.dy})
             .toList(),
