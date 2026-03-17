@@ -22,7 +22,7 @@ Refactor the single `HomeScreen` into a three-screen navigation hierarchy: a new
 | `lib/screens/coloring_screen.dart` | **Unchanged** |
 | `lib/widgets/drawing_card_widget.dart` | **Unchanged** |
 
-`_CardData` and `DeleteConfirmationDialog` are moved into their respective lib screen files. Neither is shared between the two screens.
+`_CardData` and `DeleteConfirmationDialog` are moved into their respective lib screen files. Neither is shared between the two screens. `_UploadAddButton` (the inline add-card widget from `HomeScreen`) is **retired** — it is not ported to any new screen. The AppBar `+ Upload` chip in each lib screen is its replacement.
 
 ---
 
@@ -63,8 +63,8 @@ MainMenuScreen
 - Action: `+ Upload` chip button — triggers `_startRawImport()`.
 
 ### Body
-- Horizontal `ListView.builder` showing 4–5 `DrawingCardWidget` cards visible at once.
-- Cards show real `thumbnail.png` when one exists; falls back to SVG line art at reduced opacity for unstarted templates, or raw image preview for raw imports.
+- Horizontal `ListView.builder` showing 4–5 `DrawingCardWidget` cards visible at once. A horizontal carousel is a deliberate UX requirement for both library screens (replaces the existing `GridView` layout).
+- `DrawingCardWidget` handles all thumbnail/fallback rendering unchanged — the lib screen passes the correct `DrawingEntry` and pre-computed `hasThumbnail` flag; no custom rendering logic is added in the screen.
 - Delete button visible on each card **except** `DrawingType.template` (built-in) cards.
 
 ### Data
@@ -79,7 +79,8 @@ MainMenuScreen
 
 ### Delete
 - Calls `DeleteConfirmationDialog` (math gate).
-- On confirm: evicts `FileImage` cache, calls `DrawingRepository.deleteEntry(entry)`, removes card from list.
+- `DeleteConfirmationDialog` is responsible for cache eviction (both overlay and thumbnail `FileImage` entries) and calling `DrawingRepository.deleteEntry(entry)` internally — this is unchanged from the current implementation.
+- The `onConfirmed` callback only removes the card from `_cards` in the lib screen's `setState`.
 - Hidden for `DrawingType.template` entries.
 
 ---
@@ -92,8 +93,8 @@ MainMenuScreen
 - Action: `+ Upload` chip button — triggers `_startUpload()`.
 
 ### Body
-- Horizontal `ListView.builder`, same card sizing as `TemplateLibScreen`.
-- Cards show real `thumbnail.png` when one exists; falls back to overlay PNG preview.
+- Horizontal `ListView.builder`, same card width constant as `TemplateLibScreen` (~180–200 pt).
+- `DrawingCardWidget` handles all thumbnail/fallback rendering unchanged — same as `TemplateLibScreen`.
 - Delete button visible on all cards.
 
 ### Data
@@ -108,7 +109,8 @@ MainMenuScreen
 
 ### Delete
 - Calls `DeleteConfirmationDialog` (math gate).
-- On confirm: evicts `FileImage` cache entries (overlay + thumbnail), calls `DrawingRepository.deleteEntry(entry)`, removes card from list.
+- `DeleteConfirmationDialog` handles cache eviction and `DrawingRepository.deleteEntry(entry)` internally (same as `TemplateLibScreen`).
+- The `onConfirmed` callback only removes the card from `_cards` in the lib screen's `setState`.
 - Visible on all cards.
 
 ---
