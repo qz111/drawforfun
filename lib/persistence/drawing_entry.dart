@@ -4,7 +4,7 @@ enum DrawingType { template, upload, rawImport, customTemplate }
 /// Represents one saved drawing session.
 ///
 /// Template entries have [overlayAssetPath] (SVG asset).
-/// Upload and rawImport entries have [overlayFilePath] (local PNG file).
+/// Upload, rawImport, and customTemplate entries have [overlayFilePath] (local PNG file).
 /// Exactly one of the two is non-null.
 class DrawingEntry {
   /// Folder name: animal ID (e.g. 'cat') or timestamp (e.g. 'upload_20260315_120000').
@@ -38,6 +38,6 @@ class DrawingEntry {
   /// Path to the latest colored PNG thumbnail.
   String get thumbnailPath => '$directoryPath/thumbnail.png';
 
-  /// Path to the overlay PNG file (uploads only).
+  /// Path to the overlay PNG file (uploads and custom templates).
   String get overlayPngPath => '$directoryPath/overlay.png';
 }
