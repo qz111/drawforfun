@@ -84,6 +84,24 @@ void main() {
       expect(find.byIcon(Icons.delete_outline), findsOneWidget);
     });
 
+    testWidgets('shows delete icon when onDelete is provided (customTemplate)', (tester) async {
+      await tester.pumpWidget(wrap(
+        SizedBox(
+          width: 100,
+          height: 130,
+          child: DrawingCardWidget(
+            entry: customTemplateEntry,
+            label: 'Template 03/17',
+            emoji: '🎨',
+            hasThumbnail: false,
+            onTap: () {},
+            onDelete: () {},
+          ),
+        ),
+      ));
+      expect(find.byIcon(Icons.delete_outline), findsOneWidget);
+    });
+
     testWidgets('tapping delete icon calls onDelete, not onTap', (tester) async {
       var tapCount = 0;
       var deleteTapCount = 0;
