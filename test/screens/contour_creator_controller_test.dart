@@ -100,4 +100,17 @@ void main() {
       expect(notifyCount, greaterThan(0));
     });
   });
+
+  group('ContourCreatorPainter', () {
+    test('is constructable and shouldRepaint always returns true', () {
+      final painter = ContourCreatorPainter(
+        pencilStrokes: const [],
+        eraserStrokes: const [],
+        currentStroke: null,
+        activeTool: ContourTool.pencil,
+        backgroundImage: null,
+      );
+      expect(painter.shouldRepaint(painter), isTrue);
+    });
+  });
 }
