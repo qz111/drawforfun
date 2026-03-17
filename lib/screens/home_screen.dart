@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'dart:math';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ import '../persistence/drawing_repository.dart';
 import '../templates/animal_templates.dart';
 import '../widgets/drawing_card_widget.dart';
 import 'coloring_screen.dart';
+import 'template_lib_screen.dart' show DeleteConfirmationDialog;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -348,116 +348,3 @@ class _UploadAddButton extends StatelessWidget {
   }
 }
 
-/// A dialog that requires the user to solve a simple addition problem
-/// before permanently deleting a user-owned drawing entry.
-///
-/// The math gate (sum of two random numbers 5–15) is trivially easy for
-/// adults but reliably unsolvable by children aged 3–5.
-class DeleteConfirmationDialog extends StatefulWidget {
-  final DrawingEntry entry;
-  final VoidCallback onConfirmed;
-
-  const DeleteConfirmationDialog({
-    super.key,
-    required this.entry,
-    required this.onConfirmed,
-  });
-
-  @override
-  State<DeleteConfirmationDialog> createState() =>
-      _DeleteConfirmationDialogState();
-}
-
-class _DeleteConfirmationDialogState extends State<DeleteConfirmationDialog> {
-  late final int _a;
-  late final int _b;
-  late final int _answer;
-  final _controller = TextEditingController();
-  String? _errorText;
-  bool _isDeleting = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final rng = Random();
-    _a = 5 + rng.nextInt(11); // 5–15
-    _b = 5 + rng.nextInt(11); // 5–15
-    _answer = _a + _b;
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  Future<void> _onDelete() async {
-    final input = int.tryParse(_controller.text.trim());
-    if (input != _answer) {
-      setState(() {
-        _errorText = 'Wrong answer, try again';
-        _controller.clear();
-      });
-      return;
-    }
-    setState(() => _isDeleting = true);
-    try {
-      // Evict cached FileImages so Windows releases file handles before deletion.
-      final overlayFile = widget.entry.overlayFilePath;
-      if (overlayFile != null) {
-        imageCache.evict(FileImage(File(overlayFile)));
-      }
-      imageCache.evict(FileImage(File(widget.entry.thumbnailPath)));
-      await DrawingRepository.deleteEntry(widget.entry);
-      widget.onConfirmed();
-      if (mounted) Navigator.of(context).pop();
-    } finally {
-      if (mounted) setState(() => _isDeleting = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text('Delete this image?'),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            'What is $_a + $_b?',
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(height: 12),
-          TextField(
-            controller: _controller,
-            keyboardType: TextInputType.number,
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: 'Your answer',
-              errorText: _errorText,
-            ),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancel'),
-        ),
-        TextButton(
-          onPressed: _isDeleting ? null : _onDelete,
-          child: _isDeleting
-              ? const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Delete', style: TextStyle(color: Colors.red)),
-        ),
-      ],
-    );
-  }
-}
