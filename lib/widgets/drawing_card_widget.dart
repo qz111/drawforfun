@@ -21,6 +21,7 @@ class DrawingCardWidget extends StatelessWidget {
 
   final VoidCallback onTap;
   final VoidCallback? onDelete;
+  final VoidCallback? onLongPress;
 
   // ignore: prefer_const_constructors_in_immutables
   DrawingCardWidget({
@@ -31,6 +32,7 @@ class DrawingCardWidget extends StatelessWidget {
     required this.hasThumbnail,
     required this.onTap,
     this.onDelete,
+    this.onLongPress,
   });
 
   @override
@@ -39,6 +41,7 @@ class DrawingCardWidget extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: onTap,
+          onLongPress: onLongPress,
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,

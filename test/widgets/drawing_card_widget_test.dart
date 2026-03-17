@@ -22,6 +22,12 @@ void main() {
     overlayFilePath: '/tmp/rawimport_20260315_143000/overlay.png',
     directoryPath: '/tmp/rawimport_20260315_143000',
   );
+  const customTemplateEntry = DrawingEntry(
+    id: 'custom_20260317_120000_042',
+    type: DrawingType.customTemplate,
+    overlayFilePath: '/tmp/custom_20260317_120000_042/overlay.png',
+    directoryPath: '/tmp/custom_20260317_120000_042',
+  );
 
   Widget wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
 
@@ -98,6 +104,50 @@ void main() {
       await tester.pump();
       expect(deleteTapCount, 1);
       expect(tapCount, 0);
+    });
+  });
+
+  group('DrawingCardWidget onLongPress', () {
+    testWidgets('long pressing card calls onLongPress', (tester) async {
+      var longPressCount = 0;
+      await tester.pumpWidget(wrap(
+        SizedBox(
+          width: 100,
+          height: 130,
+          child: DrawingCardWidget(
+            entry: templateEntry,
+            label: 'Cat',
+            emoji: '🐱',
+            hasThumbnail: false,
+            onTap: () {},
+            onLongPress: () => longPressCount++,
+          ),
+        ),
+      ));
+      await tester.longPress(find.byType(DrawingCardWidget));
+      await tester.pump();
+      expect(longPressCount, 1);
+    });
+
+    testWidgets('onLongPress null does not crash', (tester) async {
+      await tester.pumpWidget(wrap(
+        SizedBox(
+          width: 100,
+          height: 130,
+          child: DrawingCardWidget(
+            entry: templateEntry,
+            label: 'Cat',
+            emoji: '🐱',
+            hasThumbnail: false,
+            onTap: () {},
+            // onLongPress not provided
+          ),
+        ),
+      ));
+      // Long pressing without onLongPress should not throw
+      await tester.longPress(find.byType(DrawingCardWidget));
+      await tester.pump();
+      // No exception = pass
     });
   });
 }
