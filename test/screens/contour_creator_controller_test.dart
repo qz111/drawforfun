@@ -112,13 +112,35 @@ void main() {
       controller.endStroke();
       expect(notifyCount, greaterThan(0));
     });
+
+    test('orderedStrokes returns strokes in temporal order', () {
+      // pencil stroke first
+      controller.startStroke(const Offset(0, 0));
+      controller.addPoint(const Offset(10, 10));
+      controller.endStroke();
+      // eraser stroke second
+      controller.activeTool = ContourTool.eraser;
+      controller.startStroke(const Offset(5, 5));
+      controller.addPoint(const Offset(15, 15));
+      controller.endStroke();
+      // pencil stroke third
+      controller.activeTool = ContourTool.pencil;
+      controller.startStroke(const Offset(20, 20));
+      controller.addPoint(const Offset(30, 30));
+      controller.endStroke();
+
+      final ordered = controller.orderedStrokes;
+      expect(ordered.length, 3);
+      expect(ordered[0].$2, isTrue);   // pencil
+      expect(ordered[1].$2, isFalse);  // eraser
+      expect(ordered[2].$2, isTrue);   // pencil
+    });
   });
 
   group('ContourCreatorPainter', () {
-    test('is constructable and shouldRepaint always returns true', () {
+    test('shouldRepaint always returns true', () {
       final painter = ContourCreatorPainter(
-        pencilStrokes: const [],
-        eraserStrokes: const [],
+        orderedStrokes: const [],
         currentStroke: null,
         activeTool: ContourTool.pencil,
         backgroundImage: null,

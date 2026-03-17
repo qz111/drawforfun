@@ -49,6 +49,25 @@ class ContourCreatorController extends ChangeNotifier {
   /// the discard-warning dialog on back-navigation.
   bool get hasUnsavedChanges => _history.isNotEmpty;
 
+  /// Returns all committed strokes in chronological draw order.
+  /// Each entry is `(stroke, isPencil)` — use `isPencil` to determine
+  /// whether to render with pencilPaint or eraserPaint.
+  /// Rendering in this order preserves temporal compositing:
+  /// a pencil stroke drawn after an erase will appear above it.
+  List<(Stroke, bool)> get orderedStrokes {
+    final result = <(Stroke, bool)>[];
+    int pencilIdx = 0;
+    int eraserIdx = 0;
+    for (final entry in _history) {
+      if (entry.isPencil) {
+        result.add((_pencilStrokes[pencilIdx++], true));
+      } else {
+        result.add((_eraserStrokes[eraserIdx++], false));
+      }
+    }
+    return result;
+  }
+
   void startStroke(Offset point) {
     // BrushType.pencil is used for all strokes (BrushType has no eraser value).
     // ContourCreatorPainter discriminates tool type by list membership
@@ -110,33 +129,21 @@ class ContourCreatorController extends ChangeNotifier {
 
 // ── Painter ───────────────────────────────────────────────────────────────────
 
-/// Renders pencil strokes, eraser strokes (BlendMode.clear), an optional
-/// background image, and the in-progress stroke — all within a saveLayer so
-/// that BlendMode.clear cuts through to transparency correctly.
+/// Renders strokes in chronological order within a saveLayer so that
+/// BlendMode.clear eraser strokes cut through to transparency correctly,
+/// and pencil strokes drawn after an erase appear above it.
 class ContourCreatorPainter extends CustomPainter {
-  final List<Stroke> pencilStrokes;
-  final List<Stroke> eraserStrokes;
+  final List<(Stroke, bool isPencil)> orderedStrokes;
   final Stroke? currentStroke;
   final ContourTool activeTool;
   final ui.Image? backgroundImage;
 
-  ContourCreatorPainter({
-    required this.pencilStrokes,
-    required this.eraserStrokes,
+  const ContourCreatorPainter({
+    required this.orderedStrokes,
     required this.currentStroke,
     required this.activeTool,
     required this.backgroundImage,
   });
-
-  /// Draws consecutive point pairs of [stroke] onto [canvas] using [paint].
-  /// Strokes with fewer than 2 points are skipped.
-  void _drawStroke(Canvas canvas, Stroke stroke, Paint paint) {
-    final pts = stroke.points;
-    if (pts.length < 2) return;
-    for (int i = 0; i < pts.length - 1; i++) {
-      canvas.drawLine(pts[i], pts[i + 1], paint);
-    }
-  }
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -152,51 +159,51 @@ class ContourCreatorPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..style = PaintingStyle.stroke;
 
-    // saveLayer is required so that BlendMode.clear erases within the layer
-    // rather than cutting through to the widget background.
+    // saveLayer isolates this layer so BlendMode.clear punches holes in alpha
+    // rather than clearing the widget background.
     canvas.saveLayer(Offset.zero & size, Paint());
 
     // 1. Background image (Remix mode) drawn at full canvas size.
     if (backgroundImage != null) {
       final src = Rect.fromLTWH(
-        0,
-        0,
+        0, 0,
         backgroundImage!.width.toDouble(),
         backgroundImage!.height.toDouble(),
       );
-      final dst = Offset.zero & size;
-      canvas.drawImageRect(backgroundImage!, src, dst, Paint());
+      canvas.drawImageRect(backgroundImage!, src, Offset.zero & size, Paint());
     }
 
-    // Note: all pencil strokes are rendered before all eraser strokes regardless
-    // of temporal draw order. This is an intentional simplification — temporal
-    // interleaving (pencil after eraser after pencil) is not preserved.
-    // 2. Committed pencil strokes.
-    for (final stroke in pencilStrokes) {
-      _drawStroke(canvas, stroke, pencilPaint);
+    // 2. Committed strokes in chronological order.
+    // Rendering in order means pencil strokes drawn after an erase appear
+    // above the erase — the correct temporal compositing behaviour.
+    for (final (stroke, isPencil) in orderedStrokes) {
+      _drawStroke(canvas, stroke, isPencil ? pencilPaint : eraserPaint);
     }
 
-    // 3. In-progress pencil stroke (if pencil tool active).
-    if (activeTool == ContourTool.pencil && currentStroke != null) {
-      _drawStroke(canvas, currentStroke!, pencilPaint);
-    }
-
-    // 4. Committed eraser strokes.
-    for (final stroke in eraserStrokes) {
-      _drawStroke(canvas, stroke, eraserPaint);
-    }
-
-    // 5. In-progress eraser stroke (if eraser tool active).
-    if (activeTool == ContourTool.eraser && currentStroke != null) {
-      _drawStroke(canvas, currentStroke!, eraserPaint);
+    // 3. In-progress stroke (whichever tool is active).
+    if (currentStroke != null) {
+      _drawStroke(
+        canvas,
+        currentStroke!,
+        activeTool == ContourTool.pencil ? pencilPaint : eraserPaint,
+      );
     }
 
     canvas.restore();
   }
 
-  /// Always return true — simplest correct approach for a drawing canvas.
+  /// Draws consecutive point pairs of [stroke] onto [canvas] using [paint].
+  /// Strokes with fewer than 2 points are skipped.
+  void _drawStroke(Canvas canvas, Stroke stroke, Paint paint) {
+    final pts = stroke.points;
+    if (pts.length < 2) return;
+    for (int i = 0; i < pts.length - 1; i++) {
+      canvas.drawLine(pts[i], pts[i + 1], paint);
+    }
+  }
+
   @override
-  bool shouldRepaint(ContourCreatorPainter oldDelegate) => true;
+  bool shouldRepaint(ContourCreatorPainter _) => true;
 }
 
 // ── Screen ────────────────────────────────────────────────────────────────────
@@ -391,8 +398,7 @@ class _ContourCreatorScreenState extends State<ContourCreatorScreen> {
                             animation: _controller,
                             builder: (_, __) => CustomPaint(
                               painter: ContourCreatorPainter(
-                                pencilStrokes: _controller.pencilStrokes,
-                                eraserStrokes: _controller.eraserStrokes,
+                                orderedStrokes: _controller.orderedStrokes,
                                 currentStroke: _controller.currentStroke,
                                 activeTool: _controller.activeTool,
                                 backgroundImage: _controller.backgroundImage,
