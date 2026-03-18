@@ -38,6 +38,7 @@ class _BrushButton extends StatelessWidget {
     BrushType.airbrush: Icons.blur_on,
     BrushType.pattern:  Icons.star,
     BrushType.splatter: Icons.scatter_plot,
+    BrushType.eraser:   Icons.auto_fix_normal,
   };
 
   static const _labels = {
@@ -46,6 +47,7 @@ class _BrushButton extends StatelessWidget {
     BrushType.airbrush: 'Air',
     BrushType.pattern:  'Stars',
     BrushType.splatter: 'Splat',
+    BrushType.eraser:   'Erase',
   };
 
   @override
