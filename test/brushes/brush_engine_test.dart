@@ -118,4 +118,54 @@ void main() {
       expect(() => BrushEngine.disposeTileCache(), returnsNormally);
     });
   });
+
+  group('BrushEngine.pattern', () {
+    test('renders without throwing for multi-point stroke', () async {
+      const stroke = Stroke(
+        type: BrushType.pattern,
+        color: Colors.yellow,
+        points: [
+          Offset(100, 200),
+          Offset(150, 200),
+          Offset(200, 200),
+        ],
+        themeIndex: 0,
+      );
+      expect(() async => await renderStroke(stroke), returnsNormally);
+    });
+
+    test('renders without throwing for single-point stroke', () async {
+      const stroke = Stroke(
+        type: BrushType.pattern,
+        color: Colors.yellow,
+        points: [Offset(200, 200)],
+        themeIndex: 2,
+      );
+      expect(() async => await renderStroke(stroke), returnsNormally);
+    });
+
+    test('renders all 10 pattern styles without throwing', () async {
+      for (int t = 0; t < 10; t++) {
+        final stroke = Stroke(
+          type: BrushType.pattern,
+          color: Colors.white,
+          points: [const Offset(50, 50), const Offset(150, 100)],
+          themeIndex: t,
+        );
+        expect(() async => await renderStroke(stroke), returnsNormally,
+            reason: 'pattern style $t threw');
+      }
+    });
+
+    test('disposeTileCache clears cache without throwing', () async {
+      const stroke = Stroke(
+        type: BrushType.pattern,
+        color: Colors.white,
+        points: [Offset(50, 50), Offset(150, 100)],
+        themeIndex: 0,
+      );
+      await renderStroke(stroke);
+      expect(() => BrushEngine.disposeTileCache(), returnsNormally);
+    });
+  });
 }

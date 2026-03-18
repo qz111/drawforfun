@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'dart:ui' as ui;
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'brush_theme.dart';
 import 'brush_type.dart';
@@ -180,47 +181,111 @@ class BrushEngine {
   }
 
   // ---------------------------------------------------------------------------
-  // PATTERN — repeating star icon stamped at 24px intervals along path
+  // PATTERN — seamless wallpaper revealed by drawing (ImageShader + TileMode.repeated)
   // ---------------------------------------------------------------------------
   static void _paintPattern(Canvas canvas, Stroke stroke) {
     if (stroke.points.isEmpty) return;
 
-    double distanceAccumulator = 0.0;
-    const stampInterval = 24.0;
-    const iconSize = 14.0;
+    final styleIndex = stroke.themeIndex ?? 0;
+    final style = BrushTheme.patternStyles[styleIndex];
 
-    _stampStar(canvas, stroke.points.first, iconSize, stroke.color);
-
-    for (int i = 1; i < stroke.points.length; i++) {
-      final segment = (stroke.points[i] - stroke.points[i - 1]).distance;
-      distanceAccumulator += segment;
-
-      if (distanceAccumulator >= stampInterval) {
-        _stampStar(canvas, stroke.points[i], iconSize, stroke.color);
-        distanceAccumulator = 0.0;
+    // On web, toImageSync() is unavailable — fall back to plain fill stroke.
+    if (kIsWeb) {
+      final fallbackPaint = Paint()
+        ..color = style.backgroundColor
+        ..strokeWidth = 40.0
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..style = PaintingStyle.stroke;
+      if (stroke.points.length < 2) {
+        canvas.drawCircle(stroke.points.first, 24.0, fallbackPaint..style = PaintingStyle.fill);
+        return;
       }
+      final path = Path()..moveTo(stroke.points.first.dx, stroke.points.first.dy);
+      for (int i = 1; i < stroke.points.length; i++) {
+        path.lineTo(stroke.points[i].dx, stroke.points[i].dy);
+      }
+      canvas.drawPath(path, fallbackPaint);
+      return;
     }
+
+    // Generate tile lazily on first use of this pattern index.
+    // Must be called from inside paint() — never from shouldRepaint().
+    if (!_tileCache.containsKey(styleIndex)) {
+      _tileCache[styleIndex] = _generateTile(style);
+    }
+    final tile = _tileCache[styleIndex]!;
+
+    final shader = ui.ImageShader(
+      tile,
+      ui.TileMode.repeated,
+      ui.TileMode.repeated,
+      Float64List.fromList([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]),
+    );
+    final paint = Paint()
+      ..shader = shader
+      ..strokeWidth = 40.0
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..style = PaintingStyle.stroke;
+
+    if (stroke.points.length < 2) {
+      canvas.drawCircle(
+        stroke.points.first,
+        24.0,
+        Paint()..shader = shader,
+      );
+      return;
+    }
+
+    final path = Path()..moveTo(stroke.points.first.dx, stroke.points.first.dy);
+    for (int i = 1; i < stroke.points.length; i++) {
+      path.lineTo(stroke.points[i].dx, stroke.points[i].dy);
+    }
+    canvas.drawPath(path, paint);
   }
 
-  /// Draws a 5-pointed star centered at [center].
-  static void _stampStar(Canvas canvas, Offset center, double size, Color color) {
-    const points = 5;
-    final outerRadius = size;
-    final innerRadius = size * 0.4;
-    final path = Path();
-    for (int i = 0; i < points * 2; i++) {
-      final radius = i.isEven ? outerRadius : innerRadius;
-      final angle = (pi / points) * i - pi / 2;
-      final x = center.dx + radius * cos(angle);
-      final y = center.dy + radius * sin(angle);
-      if (i == 0) {
-        path.moveTo(x, y);
-      } else {
-        path.lineTo(x, y);
+  /// Generates an 80×80 tiled image for the given pattern style.
+  /// Synchronous via toImageSync() — native only.
+  static ui.Image _generateTile(PatternStyle style) {
+    const tileSize = 80.0;
+    final recorder = ui.PictureRecorder();
+    final tileCanvas = Canvas(recorder, const Rect.fromLTWH(0, 0, tileSize, tileSize));
+
+    // Background fill
+    tileCanvas.drawRect(
+      const Rect.fromLTWH(0, 0, tileSize, tileSize),
+      Paint()..color = style.backgroundColor,
+    );
+
+    // Emoji grid — 2 columns × rows based on emoji count
+    final emojis = style.emojis;
+    const emojiSize = 28.0;
+    const cols = 2;
+    final rows = (emojis.length / cols).ceil();
+    const cellW = tileSize / cols;
+    final cellH = tileSize / rows;
+
+    for (int row = 0; row < rows; row++) {
+      for (int col = 0; col < cols; col++) {
+        final idx = row * cols + col;
+        if (idx >= emojis.length) break;
+        final tp = TextPainter(
+          text: TextSpan(
+            text: emojis[idx],
+            style: const TextStyle(fontSize: emojiSize),
+          ),
+          textDirection: TextDirection.ltr,
+        )..layout(maxWidth: double.infinity);
+
+        final x = col * cellW + (cellW - tp.width) / 2;
+        final y = row * cellH + (cellH - tp.height) / 2;
+        tp.paint(tileCanvas, Offset(x, y));
       }
     }
-    path.close();
-    canvas.drawPath(path, Paint()..color = color);
+
+    final picture = recorder.endRecording();
+    return picture.toImageSync(tileSize.toInt(), tileSize.toInt());
   }
 
   // ---------------------------------------------------------------------------
