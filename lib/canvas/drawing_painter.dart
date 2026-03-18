@@ -63,6 +63,7 @@ class DrawingPainter extends CustomPainter {
   /// Renders an eraser stroke using BlendMode.clear to punch transparent holes
   /// in the coloring layer. Size is encoded in [Stroke.themeIndex] (0=S, 1=M, 2=L).
   void _paintEraser(Canvas canvas, Stroke stroke) {
+    if (stroke.points.isEmpty) return;
     final w = _eraserWidths[stroke.themeIndex ?? 1];
 
     // Single-point tap: fill circle.

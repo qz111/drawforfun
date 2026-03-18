@@ -93,5 +93,22 @@ void main() {
       );
       recorder.endRecording();
     });
+
+    test('paint handles eraser with empty points without throwing', () {
+      final recorder = PictureRecorder();
+      final canvas = Canvas(recorder);
+      const eraser = Stroke(
+        type: BrushType.eraser,
+        color: Colors.red,
+        points: [],
+        themeIndex: 1,
+      );
+      const painter = DrawingPainter(strokes: [eraser], currentStroke: null);
+      expect(
+        () => painter.paint(canvas, const Size(400, 400)),
+        returnsNormally,
+      );
+      recorder.endRecording();
+    });
   });
 }
