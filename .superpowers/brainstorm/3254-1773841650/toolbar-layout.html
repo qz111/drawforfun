@@ -1,0 +1,141 @@
+<h2>Dynamic Bottom Toolbar — Layout Options</h2>
+<p class="subtitle">When Airbrush or Pattern is selected, the palette area transforms. Which layout feels right?</p>
+
+<div class="section">
+  <h3 style="margin-bottom:12px">Current state (Pencil/Marker/Splatter selected) — same in all options</h3>
+  <div style="background:#f5f5f5;border-radius:12px;padding:12px 16px;max-width:480px">
+    <div style="display:flex;gap:8px;margin-bottom:8px">
+      <div style="background:#673AB7;color:white;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600">✏️ Pencil</div>
+      <div style="background:#e0e0e0;border-radius:8px;padding:4px 10px;font-size:12px">🖊️ Marker</div>
+      <div style="background:#e0e0e0;border-radius:8px;padding:4px 10px;font-size:12px">💨 Air</div>
+      <div style="background:#e0e0e0;border-radius:8px;padding:4px 10px;font-size:12px">⭐ Stars</div>
+      <div style="background:#e0e0e0;border-radius:8px;padding:4px 10px;font-size:12px">💥 Splat</div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px">
+      <div style="width:32px;height:32px;border-radius:50%;background:#FF0000;border:2px solid #ccc"></div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#FF7700;border:2px solid #ccc"></div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#FFEE00;border:2px solid #ccc"></div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#00C853;border:2px solid #ccc"></div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#2196F3;border:2px solid #ccc"></div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#9C27B0;border:2px solid #ccc"></div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#FF69B4;border:2px solid #ccc"></div>
+      <div style="width:32px;height:32px;border-radius:50%;background:#795548;border:2px solid #ccc"></div>
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top:20px">
+
+  <!-- Option A -->
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Horizontal Scroll Row</h3>
+      <p>Replace the entire palette with a single scrollable row of theme tiles. Each tile is ~80×64px showing an emoji preview + short name. Clean and finger-friendly for kids.</p>
+      <div style="background:#f0f0f0;border-radius:10px;padding:10px 12px;margin-top:10px">
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <div style="background:#673AB7;color:white;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600">💨 Air</div>
+          <div style="background:#e0e0e0;border-radius:8px;padding:4px 10px;font-size:12px">⭐ Stars</div>
+        </div>
+        <div style="display:flex;gap:8px;overflow:hidden">
+          <div style="min-width:76px;height:56px;background:#1565C0;border-radius:10px;border:3px solid #673AB7;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:18px">🌸</span>
+            <span style="font-size:9px;color:white;font-weight:600">Blue+Flowers</span>
+          </div>
+          <div style="min-width:76px;height:56px;background:#F9A825;border-radius:10px;border:2px solid #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:18px">🌈</span>
+            <span style="font-size:9px;color:#333;font-weight:600">Yellow+Rainbow</span>
+          </div>
+          <div style="min-width:76px;height:56px;background:#1B5E20;border-radius:10px;border:2px solid #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:18px">⭐</span>
+            <span style="font-size:9px;color:white;font-weight:600">Green+Stars</span>
+          </div>
+          <div style="min-width:76px;height:56px;background:#880E4F;border-radius:10px;border:2px solid #ccc;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:18px">🦋</span>
+            <span style="font-size:9px;color:white;font-weight:600">Pink+Butterflies</span>
+          </div>
+          <div style="min-width:76px;height:56px;background:#e0e0e0;border-radius:10px;border:2px dashed #aaa;display:flex;align-items:center;justify-content:center">
+            <span style="font-size:10px;color:#888">→ scroll</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B -->
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>2-Row Grid</h3>
+      <p>Show all 10 themes in a fixed 2-row × 5-column grid. No scrolling needed — all options visible at once. Slightly taller toolbar.</p>
+      <div style="background:#f0f0f0;border-radius:10px;padding:10px 12px;margin-top:10px">
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <div style="background:#673AB7;color:white;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:600">💨 Air</div>
+          <div style="background:#e0e0e0;border-radius:8px;padding:4px 10px;font-size:12px">⭐ Stars</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px">
+          <div style="height:44px;background:#1565C0;border-radius:8px;border:3px solid #673AB7;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:14px">🌸</span>
+            <span style="font-size:8px;color:white">Flowers</span>
+          </div>
+          <div style="height:44px;background:#F9A825;border-radius:8px;border:2px solid #bbb;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:14px">🌈</span>
+            <span style="font-size:8px;color:#333">Rainbow</span>
+          </div>
+          <div style="height:44px;background:#1B5E20;border-radius:8px;border:2px solid #bbb;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:14px">⭐</span>
+            <span style="font-size:8px;color:white">Stars</span>
+          </div>
+          <div style="height:44px;background:#880E4F;border-radius:8px;border:2px solid #bbb;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:14px">🦋</span>
+            <span style="font-size:8px;color:white">Butterflies</span>
+          </div>
+          <div style="height:44px;background:#4A148C;border-radius:8px;border:2px solid #bbb;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:14px">✨</span>
+            <span style="font-size:8px;color:white">Magic</span>
+          </div>
+          <div style="height:44px;background:#B71C1C;border-radius:8px;border:2px solid #bbb;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:14px">🔥</span>
+            <span style="font-size:8px;color:white">Fire</span>
+          </div>
+          <div style="height:44px;background:#006064;border-radius:8px;border:2px solid #bbb;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:14px">🌊</span>
+            <span style="font-size:8px;color:white">Ocean</span>
+          </div>
+          <div style="height:44px;background:#F57F17;border-radius:8px;border:2px solid #bbb;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:14px">🍬</span>
+            <span style="font-size:8px;color:white">Candy</span>
+          </div>
+          <div style="height:44px;background:#37474F;border-radius:8px;border:2px solid #bbb;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:14px">🌙</span>
+            <span style="font-size:8px;color:white">Night</span>
+          </div>
+          <div style="height:44px;background:#33691E;border-radius:8px;border:2px solid #bbb;display:flex;flex-direction:column;align-items:center;justify-content:center">
+            <span style="font-size:14px">🌿</span>
+            <span style="font-size:8px;color:white">Jungle</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C -->
+  <div class="option" data-choice="c" onclick="toggleSelect(this)">
+    <div class="letter">C</div>
+    <div class="content">
+      <h3>Animated Swap — same height as palette</h3>
+      <p>Keep the toolbar at the exact same height as the color palette. When switching to Airbrush/Pattern, the palette cross-fades into a horizontal scroll row. Toolbar never jumps in size — feels polished.</p>
+      <div style="background:#f0f0f0;border-radius:10px;padding:10px 12px;margin-top:10px;font-size:11px;color:#555;font-style:italic">
+        Same visual as Option A, but with cross-fade animation and height-locked to the palette.
+        <div style="margin-top:6px;display:flex;align-items:center;gap:8px">
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,#9C27B0,#E91E63)"></div>
+          <span>← palette fades out</span>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,#E91E63,#1565C0)"></div>
+          <span>themes fade in →</span>
+          <div style="flex:1;height:2px;background:linear-gradient(90deg,#1565C0,#00BCD4)"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

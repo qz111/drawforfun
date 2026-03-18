@@ -1,3 +1,6 @@
+import 'package:drawforfun/brushes/brush_type.dart';
+
+import '../widgets/theme_picker_widget.dart';
 import 'package:flutter/material.dart';
 import '../brushes/stroke.dart';
 import '../canvas/canvas_controller.dart';
@@ -27,6 +30,8 @@ class _ColoringScreenState extends State<ColoringScreen> {
     super.initState();
     _loadSavedStrokes();
   }
+
+
 
   /// Loads previously saved strokes from disk in the background.
   /// Does nothing if no strokes.json exists for this entry.
@@ -141,29 +146,37 @@ class _ColoringScreenState extends State<ColoringScreen> {
                 ),
 
                 // ── Bottom Panel ─────────────────────────────────────
-                Container(
-                  color: Colors.white,
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 8, horizontal: 12),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      AnimatedBuilder(
-                        animation: _controller,
-                        builder: (_, __) => BrushSelectorWidget(
+                ListenableBuilder(
+                  listenable: _controller,
+                  builder: (_, __) => Container(
+                    color: Colors.white,
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 8, horizontal: 12),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        BrushSelectorWidget(
                           selectedBrush: _controller.activeBrushType,
                           onBrushSelected: _controller.setActiveBrush,
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      AnimatedBuilder(
-                        animation: _controller,
-                        builder: (_, __) => PaletteWidget(
-                          selectedColor: _controller.activeColor,
-                          onColorSelected: _controller.setActiveColor,
+                        const SizedBox(height: 10),
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 200),
+                          child: _isThemeBrush(_controller.activeBrushType)
+                              ? ThemePickerWidget(
+                                  key: const ValueKey('theme'),
+                                  brushType: _controller.activeBrushType,
+                                  selectedIndex: _controller.activeThemeIndex,
+                                  onThemeSelected: _controller.setActiveTheme,
+                                )
+                              : PaletteWidget(
+                                  key: const ValueKey('palette'),
+                                  selectedColor: _controller.activeColor,
+                                  onColorSelected: _controller.setActiveColor,
+                                ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -207,4 +220,6 @@ class _ColoringScreenState extends State<ColoringScreen> {
       ),
     );
   }
+   bool _isThemeBrush(BrushType type) =>
+      type == BrushType.airbrush || type == BrushType.pattern;
 }

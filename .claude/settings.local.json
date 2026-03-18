@@ -91,7 +91,19 @@
       "Bash(cmd /c \"cd D:\\\\\\\\developer_tools\\\\\\\\drawforfun && flutter analyze lib/screens/home_screen.dart 2>&1\")",
       "Bash(cmd /c \"cd D:\\\\\\\\developer_tools\\\\\\\\drawforfun && flutter analyze lib/screens/home_screen.dart\" 2>&1)",
       "Bash(cmd /c \"cd D:\\\\\\\\developer_tools\\\\\\\\drawforfun && flutter analyze lib/screens/home_screen.dart\")",
-      "Bash(cmd /c \"cd D:\\\\\\\\developer_tools\\\\\\\\drawforfun && flutter analyze lib/line_art/line_art_engine.dart\")"
+      "Bash(cmd /c \"cd D:\\\\\\\\developer_tools\\\\\\\\drawforfun && flutter analyze lib/line_art/line_art_engine.dart\")",
+      "Bash(\"C:/Users/klose/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.4/scripts/start-server.sh\" --project-dir \"D:/developer_tools/drawforfun\")",
+      "Bash(bash \"C:/Users/klose/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.4/skills/brainstorming/scripts/start-server.sh\" --project-dir \"D:/developer_tools/drawforfun\")",
+      "Bash(for i:*)",
+      "Bash(do flutter:*)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(p[''''directUri'''']\\) for p in d.get\\(''''packages'''',[]\\) if p.get\\(''''name''''\\)==''''flutter_test'''']\")",
+      "Bash(C:/Users/klose/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.4/scripts/start-server.sh --project-dir \"D:/developer_tools/drawforfun\")",
+      "Bash(bash \"/c/Users/klose/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.4/skills/brainstorming/scripts/start-server.sh\" --project-dir \"D:/developer_tools/drawforfun\" 2>&1)",
+      "Bash(curl -s http://localhost:51328/)",
+      "Bash(dart pub:*)",
+      "Bash(echo checking... ls $APPDATA/../Local/Pub/Cache/hosted/pub.dev/)",
+      "Bash(head -20 grep -rn \"SvgAssetLoader\\\\|loadPicture\" \"C:/Users/klose/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_svg-2.2.4/lib/\")",
+      "Bash(bash \"C:/Users/klose/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.5/skills/brainstorming/scripts/start-server.sh\" --project-dir \"D:/developer_tools/drawforfun\" 2>&1)"
     ]
   },
   "enabledPlugins": {

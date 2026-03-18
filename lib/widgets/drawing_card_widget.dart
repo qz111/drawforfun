@@ -124,7 +124,7 @@ class DrawingCardWidget extends StatelessWidget {
     if (hasThumbnail) {
       return Image.file(
         File(entry.thumbnailPath),
-        fit: BoxFit.cover,
+        fit: BoxFit.contain,
         errorBuilder: (_, __, ___) => _placeholder(),
       );
     }

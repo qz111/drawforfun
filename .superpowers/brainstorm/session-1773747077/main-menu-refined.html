@@ -1,0 +1,45 @@
+<h2>Main Menu — Refined Mockup</h2>
+<p class="subtitle">C-style cards, side by side. Does this look right?</p>
+
+<div class="mockup">
+  <div class="mockup-header">Main Menu Screen (iPad portrait)</div>
+  <div class="mockup-body" style="background:#f3f0ff; min-height:340px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; padding:32px;">
+
+    <div style="font-size:22px; font-weight:800; color:#4C1D95; letter-spacing:1px;">🎨 Draw For Fun</div>
+
+    <div style="display:flex; flex-direction:row; gap:20px; width:100%; max-width:420px;">
+
+      <!-- Templates card -->
+      <div style="flex:1; background:white; border:3px solid #7C3AED; border-radius:20px; padding:28px 16px; display:flex; flex-direction:column; align-items:center; gap:10px; box-shadow:0 4px 16px rgba(124,58,237,.2); cursor:pointer;">
+        <div style="font-size:44px;">🐾</div>
+        <div style="font-size:16px; font-weight:800; color:#4C1D95;">Templates</div>
+        <div style="font-size:11px; color:#6B7280; text-align:center;">Built-in animals &amp; your raw photos</div>
+      </div>
+
+      <!-- My Uploads card -->
+      <div style="flex:1; background:white; border:3px solid #059669; border-radius:20px; padding:28px 16px; display:flex; flex-direction:column; align-items:center; gap:10px; box-shadow:0 4px 16px rgba(5,150,105,.2); cursor:pointer;">
+        <div style="font-size:44px;">📷</div>
+        <div style="font-size:16px; font-weight:800; color:#065F46;">My Uploads</div>
+        <div style="font-size:11px; color:#6B7280; text-align:center;">Edge-detected line art drawings</div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="options" style="margin-top:24px;">
+  <div class="option" data-choice="yes" onclick="toggleSelect(this)">
+    <div class="letter">✓</div>
+    <div class="content">
+      <h3>Looks good, move on</h3>
+      <p>This is the Main Menu design I want</p>
+    </div>
+  </div>
+  <div class="option" data-choice="tweak" onclick="toggleSelect(this)">
+    <div class="letter">✎</div>
+    <div class="content">
+      <h3>Needs a tweak</h3>
+      <p>Close but I want to adjust something — I'll describe in terminal</p>
+    </div>
+  </div>
+</div>

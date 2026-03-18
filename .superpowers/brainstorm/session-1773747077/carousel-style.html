@@ -1,0 +1,51 @@
+<h2>Library Screen — Carousel Style</h2>
+<p class="subtitle">How should thumbnails be displayed inside TemplateLibScreen and MyUploadLibScreen?</p>
+
+<div class="cards">
+
+  <!-- Option A: PageView - one big card at a time -->
+  <div class="card" data-choice="A" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f3f0ff; padding:16px; border-radius:8px 8px 0 0; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;">
+      <div style="font-size:11px; color:#6B7280; margin-bottom:4px;">← swipe →</div>
+      <div style="background:white; border:2px solid #7C3AED; border-radius:16px; width:120px; height:120px; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 4px 16px rgba(124,58,237,.2);">
+        <div style="font-size:36px;">🐱</div>
+        <div style="font-size:11px; font-weight:600; color:#4C1D95; margin-top:4px;">Cat</div>
+      </div>
+      <div style="display:flex; gap:5px; margin-top:4px;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#7C3AED;"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#D1D5DB;"></div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#D1D5DB;"></div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — One at a Time (PageView)</h3>
+      <p>One large card fills the screen. Swipe left/right to move between drawings. Dot indicators show position. Very simple for young kids.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Horizontal strip, 2–3 visible -->
+  <div class="card" data-choice="B" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#f0fdf4; padding:16px; border-radius:8px 8px 0 0; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+      <div style="font-size:11px; color:#6B7280; margin-bottom:8px;">scroll →</div>
+      <div style="display:flex; gap:10px; overflow:hidden; max-width:260px;">
+        <div style="background:white; border:2px solid #7C3AED; border-radius:12px; min-width:80px; height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,.1);">
+          <div style="font-size:26px;">🐱</div>
+          <div style="font-size:10px; font-weight:600; color:#4C1D95; margin-top:3px;">Cat</div>
+        </div>
+        <div style="background:white; border:2px solid #D1D5DB; border-radius:12px; min-width:80px; height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,.1);">
+          <div style="font-size:26px;">🐶</div>
+          <div style="font-size:10px; font-weight:600; color:#374151; margin-top:3px;">Dog</div>
+        </div>
+        <div style="background:white; border:2px solid #D1D5DB; border-radius:12px; min-width:80px; height:100px; display:flex; flex-direction:column; align-items:center; justify-content:center; box-shadow:0 2px 8px rgba(0,0,0,.1); opacity:0.6;">
+          <div style="font-size:26px;">🦁</div>
+          <div style="font-size:10px; font-weight:600; color:#374151; margin-top:3px;">Lion</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Scrollable Strip</h3>
+      <p>2–3 cards visible at once. Scroll horizontally to see more. Tap any card to open. Familiar pattern, shows more at once.</p>
+    </div>
+  </div>
+
+</div>

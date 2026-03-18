@@ -67,7 +67,7 @@ class CanvasStackWidget extends StatelessWidget {
           if (backgroundFilePath != null)
             Image.file(
               File(backgroundFilePath!),
-              fit: BoxFit.fill,
+              fit: BoxFit.contain,
               gaplessPlayback: true,
             ),
 
@@ -88,7 +88,7 @@ class CanvasStackWidget extends StatelessWidget {
             IgnorePointer(
               child: SvgPicture.asset(
                 lineArtAssetPath!,
-                fit: BoxFit.fill,
+                fit: BoxFit.contain,
                 placeholderBuilder: (_) => const SizedBox.expand(),
               ),
             )
@@ -96,7 +96,7 @@ class CanvasStackWidget extends StatelessWidget {
             IgnorePointer(
               child: Image.file(
                 File(lineArtFilePath!),
-                fit: BoxFit.fill,
+                fit: BoxFit.contain,
                 gaplessPlayback: true,
               ),
             )
@@ -104,7 +104,7 @@ class CanvasStackWidget extends StatelessWidget {
             IgnorePointer(
               child: Image.memory(
                 lineArtBytes!,
-                fit: BoxFit.fill,
+                fit: BoxFit.contain,
                 gaplessPlayback: true,
               ),
             ),
