@@ -6,7 +6,7 @@ import 'package:drawforfun/widgets/theme_picker_widget.dart';
 
 void main() {
   group('ThemePickerWidget', () {
-    testWidgets('shows 10 items for airbrush', (tester) async {
+    testWidgets('shows label for airbrush theme 0', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -24,7 +24,7 @@ void main() {
       expect(find.text(BrushTheme.airbrushThemes[0].label), findsOneWidget);
     });
 
-    testWidgets('shows 10 items for pattern', (tester) async {
+    testWidgets('shows label for pattern style 0', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(

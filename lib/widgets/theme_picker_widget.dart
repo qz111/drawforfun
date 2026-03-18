@@ -54,6 +54,7 @@ class ThemePickerWidget extends StatelessWidget {
               duration: const Duration(milliseconds: 150),
               child: Container(
                 width: 80,
+                height: 64,
                 decoration: BoxDecoration(
                   color: bgColor,
                   borderRadius: BorderRadius.circular(10),
