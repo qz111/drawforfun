@@ -120,12 +120,6 @@ abstract class AppGradients {
     end: Alignment.bottomRight,
   );
 
-  // appBar gradient intentionally kept for now — removed in Phase 3
-  static const appBar = LinearGradient(
-    colors: [Color(0xFF9333EA), Color(0xFFDB2777)],
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-  );
 }
 
 // ── Theme builder ─────────────────────────────────────────────────────────────
@@ -184,7 +178,6 @@ abstract class AppTheme {
     );
   }
 
-  // TODO Phase 3: remove this method and switch callers to floating buttons
   /// Returns a branded gradient [AppBar]. Use on every screen for consistency.
   static AppBar gradientAppBar({
     required String title,
@@ -203,7 +196,7 @@ abstract class AppTheme {
       ),
       actions: actions,
       flexibleSpace: Container(
-        decoration: const BoxDecoration(gradient: AppGradients.appBar),
+        decoration: const BoxDecoration(gradient: AppGradients.magicalSky),
       ),
     );
   }

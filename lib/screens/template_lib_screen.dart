@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'dart:ui' show lerpDouble;
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -9,7 +10,7 @@ import '../persistence/drawing_repository.dart';
 import '../templates/animal_templates.dart';
 import '../theme/app_theme.dart';
 import '../widgets/clay_ink_well.dart';
-import '../widgets/drawing_card_widget.dart';
+import '../widgets/polaroid_card_widget.dart';
 import 'coloring_screen.dart';
 import 'contour_creator_screen.dart';
 
@@ -26,10 +27,22 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
   List<_CardData> _cards = [];
   List<_CardData> _customCards = [];
 
+  late final ScrollController _mainScrollCtrl;
+  late final ScrollController _customScrollCtrl;
+
   @override
   void initState() {
     super.initState();
+    _mainScrollCtrl = ScrollController()..addListener(() => setState(() {}));
+    _customScrollCtrl = ScrollController()..addListener(() => setState(() {}));
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _mainScrollCtrl.dispose();
+    _customScrollCtrl.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -191,6 +204,19 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
     );
   }
 
+  /// Computes a scale factor (0.88–1.0) for a carousel item based on its
+  /// distance from the viewport centre. Items near centre appear larger.
+  double _carouselScale(int index, ScrollController ctrl, BuildContext context) {
+    if (!ctrl.hasClients) return 1.0;
+    const itemExtent = 212.0; // cardWidth(200) + gap(12)
+    final viewportWidth = MediaQuery.of(context).size.width;
+    final scrollOffset = ctrl.offset;
+    final itemCenter = index * itemExtent + 100.0; // 100 = cardWidth/2
+    final viewportCenter = scrollOffset + viewportWidth / 2;
+    final distance = (itemCenter - viewportCenter).abs();
+    return lerpDouble(1.0, 0.88, (distance / 160.0).clamp(0.0, 1.0))!;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -247,48 +273,60 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
                           PointerDeviceKind.mouse,
                         },
                       ),
-                      child: ListView(
+                      child: ListView.builder(
+                        controller: _mainScrollCtrl,
                         scrollDirection: Axis.horizontal,
-                        children: [
-                          // Create Blank Canvas — static first card
-                          Padding(
-                            padding: const EdgeInsets.only(right: 12),
-                            child: SizedBox(
-                              width: 200,
-                              child: _CreateBlankCard(
-                                onTap: () async {
-                                  await Navigator.push<void>(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) =>
-                                          const ContourCreatorScreen(),
-                                    ),
-                                  );
-                                  _loadData();
-                                },
-                              ),
-                            ),
-                          ),
-                          // Built-in + rawImport cards
-                          ..._cards.map((card) => Padding(
+                        itemExtent: 212,
+                        itemCount: 1 + _cards.length, // +1 for CreateBlankCard
+                        itemBuilder: (context, i) {
+                          final scale = _carouselScale(i, _mainScrollCtrl, context);
+                          if (i == 0) {
+                            return Transform.scale(
+                              scale: scale,
+                              child: Padding(
                                 padding: const EdgeInsets.only(right: 12),
                                 child: SizedBox(
                                   width: 200,
-                                  child: DrawingCardWidget(
-                                    entry: card.entry,
-                                    label: card.label,
-                                    emoji: card.emoji,
-                                    hasThumbnail: card.hasThumbnail,
-                                    onTap: () => _openEntry(card.entry),
-                                    onLongPress: () => _showRemixSheet(card),
-                                    onDelete: card.entry.type ==
-                                            DrawingType.template
-                                        ? null
-                                        : () => _confirmDelete(card),
+                                  child: _CreateBlankCard(
+                                    onTap: () async {
+                                      await Navigator.push<void>(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) =>
+                                              const ContourCreatorScreen(),
+                                        ),
+                                      );
+                                      _loadData();
+                                    },
                                   ),
                                 ),
-                              )),
-                        ],
+                              ),
+                            );
+                          }
+                          final cardIndex = i - 1;
+                          final card = _cards[cardIndex];
+                          return Transform.scale(
+                            scale: scale,
+                            child: Padding(
+                              padding: const EdgeInsets.only(right: 12),
+                              child: SizedBox(
+                                width: 200,
+                                child: PolaroidCardWidget(
+                                  index: cardIndex,
+                                  entry: card.entry,
+                                  label: card.label,
+                                  emoji: card.emoji,
+                                  hasThumbnail: card.hasThumbnail,
+                                  onTap: () => _openEntry(card.entry),
+                                  onLongPress: () => _showRemixSheet(card),
+                                  onDelete: card.entry.type == DrawingType.template
+                                      ? null
+                                      : () => _confirmDelete(card),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ),
@@ -314,25 +352,34 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
                             PointerDeviceKind.mouse,
                           },
                         ),
-                        child: ListView(
+                        child: ListView.builder(
+                          controller: _customScrollCtrl,
                           scrollDirection: Axis.horizontal,
-                          children: _customCards.map((card) {
-                            return Padding(
-                              padding: const EdgeInsets.only(right: 12),
-                              child: SizedBox(
-                                width: 200,
-                                child: DrawingCardWidget(
-                                  entry: card.entry,
-                                  label: card.label,
-                                  emoji: card.emoji,
-                                  hasThumbnail: card.hasThumbnail,
-                                  onTap: () => _openEntry(card.entry),
-                                  onLongPress: () => _showRemixSheet(card),
-                                  onDelete: () => _confirmDelete(card),
+                          itemExtent: 212,
+                          itemCount: _customCards.length,
+                          itemBuilder: (context, i) {
+                            final card = _customCards[i];
+                            final scale = _carouselScale(i, _customScrollCtrl, context);
+                            return Transform.scale(
+                              scale: scale,
+                              child: Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: SizedBox(
+                                  width: 200,
+                                  child: PolaroidCardWidget(
+                                    index: i,
+                                    entry: card.entry,
+                                    label: card.label,
+                                    emoji: card.emoji,
+                                    hasThumbnail: card.hasThumbnail,
+                                    onTap: () => _openEntry(card.entry),
+                                    onLongPress: () => _showRemixSheet(card),
+                                    onDelete: () => _confirmDelete(card),
+                                  ),
                                 ),
                               ),
                             );
-                          }).toList(),
+                          },
                         ),
                       ),
                     ),
