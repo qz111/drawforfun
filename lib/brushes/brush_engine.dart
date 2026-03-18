@@ -285,7 +285,9 @@ class BrushEngine {
     }
 
     final picture = recorder.endRecording();
-    return picture.toImageSync(tileSize.toInt(), tileSize.toInt());
+    final image = picture.toImageSync(tileSize.toInt(), tileSize.toInt());
+    picture.dispose();
+    return image;
   }
 
   // ---------------------------------------------------------------------------
