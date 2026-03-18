@@ -3,9 +3,12 @@ import 'dart:math';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../persistence/drawing_entry.dart';
 import '../persistence/drawing_repository.dart';
 import '../templates/animal_templates.dart';
+import '../theme/app_theme.dart';
+import '../widgets/clay_ink_well.dart';
 import '../widgets/drawing_card_widget.dart';
 import 'coloring_screen.dart';
 import 'contour_creator_screen.dart';
@@ -149,9 +152,9 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
+              Text(
                 'What would you like to do?',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: GoogleFonts.fredoka(fontWeight: FontWeight.w600, fontSize: 18),
               ),
               const SizedBox(height: 16),
               Row(
@@ -160,7 +163,7 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
                     child: _SheetOption(
                       label: 'Color it!',
                       icon: Icons.brush,
-                      color: Colors.green,
+                      color: AppColors.success,
                       onTap: () {
                         Navigator.pop(context);
                         _openEntry(card.entry);
@@ -172,7 +175,7 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
                     child: _SheetOption(
                       label: 'Remix it',
                       icon: Icons.edit,
-                      color: Colors.deepPurple,
+                      color: AppColors.accentPrimary,
                       onTap: () {
                         Navigator.pop(context);
                         _openRemix(card.entry);
@@ -191,14 +194,8 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: AppBar(
-        backgroundColor: Colors.deepPurple,
-        foregroundColor: Colors.white,
-        title: const Text(
-          '🐾 Templates',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+      appBar: AppTheme.gradientAppBar(
+        title: '🐾 Templates',
         actions: [
           if (_isImporting)
             const Padding(
@@ -214,13 +211,15 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
             Padding(
               padding: const EdgeInsets.only(right: 12),
               child: ActionChip(
-                label: const Text('+ Upload'),
+                label: Text(
+                  '+ Upload',
+                  style: GoogleFonts.nunito(
+                    color: AppColors.accentPrimary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
                 onPressed: _startRawImport,
                 backgroundColor: Colors.white,
-                labelStyle: const TextStyle(
-                  color: Colors.deepPurple,
-                  fontWeight: FontWeight.bold,
-                ),
               ),
             ),
         ],
@@ -232,9 +231,9 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Tap a drawing to start coloring',
-                    style: TextStyle(fontSize: 13, color: Colors.black54),
+                    style: GoogleFonts.nunito(fontSize: 13, color: AppColors.textMuted),
                   ),
                   const SizedBox(height: 12),
 
@@ -297,10 +296,13 @@ class _TemplateLibScreenState extends State<TemplateLibScreen> {
                   // ── My Templates section (only when non-empty) ────────────
                   if (_customCards.isNotEmpty) ...[
                     const SizedBox(height: 12),
-                    const Text(
+                    Text(
                       'My Templates',
-                      style: TextStyle(
-                          fontWeight: FontWeight.bold, fontSize: 14),
+                      style: GoogleFonts.fredoka(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: AppColors.textPrimary,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     SizedBox(
@@ -486,25 +488,26 @@ class _SheetOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return ClayInkWell(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 14),
+        padding: const EdgeInsets.symmetric(vertical: 18),
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withValues(alpha: 0.3)),
+          borderRadius: BorderRadius.circular(AppRadius.button),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 2),
+          boxShadow: AppShadows.soft(color),
         ),
         child: Column(
           children: [
-            Icon(icon, color: color, size: 28),
+            Icon(icon, color: color, size: 30),
             const SizedBox(height: 6),
             Text(
               label,
-              style: TextStyle(
+              style: GoogleFonts.fredoka(
                 color: color,
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
               ),
             ),
           ],
@@ -522,37 +525,30 @@ class _CreateBlankCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return ClayInkWell(
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(AppRadius.card),
           border: Border.all(
-            color: Colors.deepPurple.shade300,
+            color: AppColors.accentPrimary.withValues(alpha: 0.5),
             width: 2.5,
-            strokeAlign: BorderSide.strokeAlignInside,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.06),
-              blurRadius: 6,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: AppShadows.clay(AppColors.accentPrimary),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.edit, size: 40, color: Colors.deepPurple.shade400),
+            const Icon(Icons.edit, size: 44, color: AppColors.accentPrimary),
             const SizedBox(height: 10),
             Text(
               'Create Blank Canvas',
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.deepPurple.shade400,
-                fontSize: 13,
+              style: GoogleFonts.fredoka(
+                fontWeight: FontWeight.w600,
+                color: AppColors.accentPrimary,
+                fontSize: 14,
               ),
             ),
           ],
