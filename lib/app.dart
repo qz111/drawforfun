@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'screens/main_menu_screen.dart';
+import 'theme/app_theme.dart';
+import 'widgets/magical_sky_background.dart';
 
 class DrawForFunApp extends StatelessWidget {
   const DrawForFunApp({super.key});
@@ -9,10 +11,10 @@ class DrawForFunApp extends StatelessWidget {
     return MaterialApp(
       title: 'Draw For Fun',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.build(),
+      // MagicalSkyBackground wraps every route — all screens get the
+      // gradient + sparkles with no per-screen changes required.
+      builder: (context, child) => MagicalSkyBackground(child: child!),
       home: const MainMenuScreen(),
     );
   }
