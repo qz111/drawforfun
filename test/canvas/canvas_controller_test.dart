@@ -123,5 +123,49 @@ void main() {
       controller.setActiveTheme(5);
       expect(notified, isTrue);
     });
+
+    test('activeThemeIndex defaults to 1 (Medium) for eraser', () {
+      controller.setActiveBrush(BrushType.eraser);
+      expect(controller.activeThemeIndex, 1);
+    });
+
+    test('setActiveTheme updates eraser size index independently', () {
+      controller.setActiveBrush(BrushType.eraser);
+      controller.setActiveTheme(0); // Small
+      expect(controller.activeThemeIndex, 0);
+
+      // switching away and back preserves eraser index
+      controller.setActiveBrush(BrushType.airbrush);
+      controller.setActiveBrush(BrushType.eraser);
+      expect(controller.activeThemeIndex, 0);
+    });
+
+    test('eraser size index is independent of airbrush/pattern indices', () {
+      controller.setActiveBrush(BrushType.airbrush);
+      controller.setActiveTheme(5);
+
+      controller.setActiveBrush(BrushType.eraser);
+      controller.setActiveTheme(2); // Large
+
+      controller.setActiveBrush(BrushType.airbrush);
+      expect(controller.activeThemeIndex, 5); // airbrush unaffected
+
+      controller.setActiveBrush(BrushType.eraser);
+      expect(controller.activeThemeIndex, 2); // eraser preserved
+    });
+
+    test('startStroke stamps themeIndex for eraser', () {
+      controller.setActiveBrush(BrushType.eraser);
+      controller.setActiveTheme(2); // Large
+      controller.startStroke(BrushType.eraser, Colors.red, const Offset(0, 0));
+      expect(controller.currentStroke!.type, BrushType.eraser);
+      expect(controller.currentStroke!.themeIndex, 2);
+    });
+
+    test('startStroke uses size index 1 (default) when no size set', () {
+      controller.setActiveBrush(BrushType.eraser);
+      controller.startStroke(BrushType.eraser, Colors.red, const Offset(0, 0));
+      expect(controller.currentStroke!.themeIndex, 1);
+    });
   });
 }

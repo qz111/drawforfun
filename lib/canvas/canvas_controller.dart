@@ -17,24 +17,32 @@ class CanvasController extends ChangeNotifier {
   // them does not reset the other's selection.
   int _activeAirbrushThemeIndex = 0;
   int _activePatternThemeIndex = 0;
+  int _activeEraserSizeIndex = 1; // default Medium (0=S, 1=M, 2=L)
 
   List<Stroke> get strokes => List.unmodifiable(_strokes);
   Stroke? get currentStroke => _currentStroke;
   BrushType get activeBrushType => _activeBrushType;
   Color get activeColor => _activeColor;
 
-  /// The active theme index for the currently selected theme-based brush.
-  /// Returns 0 for color-based brushes (value is unused for those types).
-  int get activeThemeIndex => _activeBrushType == BrushType.airbrush
-      ? _activeAirbrushThemeIndex
-      : _activePatternThemeIndex;
+  /// The active sub-index for the currently selected brush:
+  /// - airbrush: theme index (0–9)
+  /// - pattern: theme index (0–9)
+  /// - eraser: size index (0 = S, 1 = M, 2 = L)
+  /// Returns 0 for color-based brushes (pencil, marker, splatter) — unused for those.
+  int get activeThemeIndex {
+    if (_activeBrushType == BrushType.airbrush) return _activeAirbrushThemeIndex;
+    if (_activeBrushType == BrushType.pattern)  return _activePatternThemeIndex;
+    if (_activeBrushType == BrushType.eraser)   return _activeEraserSizeIndex;
+    return 0;
+  }
 
   /// Begin a new stroke at [point].
-  /// For airbrush/pattern, stamps the current theme index onto the stroke.
+  /// For airbrush/pattern/eraser, stamps the current theme/size index onto the stroke.
   /// For color-based brushes, themeIndex is null.
   void startStroke(BrushType type, Color color, Offset point) {
     final useTheme = _activeBrushType == BrushType.airbrush ||
-        _activeBrushType == BrushType.pattern;
+        _activeBrushType == BrushType.pattern ||
+        _activeBrushType == BrushType.eraser;
     _currentStroke = Stroke(
       type: type,
       color: color,
@@ -85,13 +93,15 @@ class CanvasController extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Set the theme index for the currently active theme-based brush.
-  /// Airbrush and pattern each maintain independent indices.
+  /// Set the sub-index for the currently active brush.
+  /// For airbrush/pattern: theme index. For eraser: size index (0=S, 1=M, 2=L).
   void setActiveTheme(int index) {
     if (_activeBrushType == BrushType.airbrush) {
       _activeAirbrushThemeIndex = index;
     } else if (_activeBrushType == BrushType.pattern) {
       _activePatternThemeIndex = index;
+    } else if (_activeBrushType == BrushType.eraser) {
+      _activeEraserSizeIndex = index;
     }
     notifyListeners();
   }
