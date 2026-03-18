@@ -1,5 +1,6 @@
 import 'package:drawforfun/brushes/brush_type.dart';
 
+import '../widgets/eraser_size_picker_widget.dart';
 import '../widgets/theme_picker_widget.dart';
 import 'package:flutter/material.dart';
 import '../brushes/stroke.dart';
@@ -162,18 +163,24 @@ class _ColoringScreenState extends State<ColoringScreen> {
                         const SizedBox(height: 10),
                         AnimatedSwitcher(
                           duration: const Duration(milliseconds: 200),
-                          child: _isThemeBrush(_controller.activeBrushType)
-                              ? ThemePickerWidget(
-                                  key: const ValueKey('theme'),
-                                  brushType: _controller.activeBrushType,
+                          child: _controller.activeBrushType == BrushType.eraser
+                              ? EraserSizePickerWidget(
+                                  key: const ValueKey('eraser'),
                                   selectedIndex: _controller.activeThemeIndex,
-                                  onThemeSelected: _controller.setActiveTheme,
+                                  onSizeSelected: _controller.setActiveTheme,
                                 )
-                              : PaletteWidget(
-                                  key: const ValueKey('palette'),
-                                  selectedColor: _controller.activeColor,
-                                  onColorSelected: _controller.setActiveColor,
-                                ),
+                              : _isThemeBrush(_controller.activeBrushType)
+                                  ? ThemePickerWidget(
+                                      key: const ValueKey('theme'),
+                                      brushType: _controller.activeBrushType,
+                                      selectedIndex: _controller.activeThemeIndex,
+                                      onThemeSelected: _controller.setActiveTheme,
+                                    )
+                                  : PaletteWidget(
+                                      key: const ValueKey('palette'),
+                                      selectedColor: _controller.activeColor,
+                                      onColorSelected: _controller.setActiveColor,
+                                    ),
                         ),
                       ],
                     ),
