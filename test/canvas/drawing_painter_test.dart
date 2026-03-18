@@ -42,5 +42,56 @@ void main() {
       );
       recorder.endRecording();
     });
+
+    test('paint handles eraser stroke without throwing', () {
+      final recorder = PictureRecorder();
+      final canvas = Canvas(recorder);
+      const eraser = Stroke(
+        type: BrushType.eraser,
+        color: Colors.red, // ignored by eraser renderer
+        points: [Offset(50, 50), Offset(150, 150)],
+        themeIndex: 1, // Medium
+      );
+      const painter = DrawingPainter(strokes: [eraser], currentStroke: null);
+      expect(
+        () => painter.paint(canvas, const Size(400, 400)),
+        returnsNormally,
+      );
+      recorder.endRecording();
+    });
+
+    test('paint handles eraser single-point tap without throwing', () {
+      final recorder = PictureRecorder();
+      final canvas = Canvas(recorder);
+      const eraser = Stroke(
+        type: BrushType.eraser,
+        color: Colors.blue,
+        points: [Offset(200, 200)],
+        themeIndex: 2, // Large
+      );
+      const painter = DrawingPainter(strokes: [eraser], currentStroke: null);
+      expect(
+        () => painter.paint(canvas, const Size(400, 400)),
+        returnsNormally,
+      );
+      recorder.endRecording();
+    });
+
+    test('paint handles eraser with null themeIndex (defaults to Medium)', () {
+      final recorder = PictureRecorder();
+      final canvas = Canvas(recorder);
+      const eraser = Stroke(
+        type: BrushType.eraser,
+        color: Colors.green,
+        points: [Offset(10, 10), Offset(100, 100)],
+        // themeIndex omitted → null → defaults to index 1 (Medium)
+      );
+      const painter = DrawingPainter(strokes: [eraser], currentStroke: null);
+      expect(
+        () => painter.paint(canvas, const Size(400, 400)),
+        returnsNormally,
+      );
+      recorder.endRecording();
+    });
   });
 }
