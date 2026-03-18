@@ -7,6 +7,9 @@ import 'stroke.dart';
 class BrushEngine {
   BrushEngine._();
 
+  // Stub — full implementation added in Task 6 (Pattern brush upgrade).
+  static void disposeTileCache() {}
+
   /// Entry point: dispatches to the correct brush painter.
   static void paint(Canvas canvas, Stroke stroke) {
     if (stroke.points.isEmpty) return;

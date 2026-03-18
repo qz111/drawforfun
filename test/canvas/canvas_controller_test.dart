@@ -61,5 +61,67 @@ void main() {
     test('undo on empty list does not throw', () {
       expect(() => controller.undo(), returnsNormally);
     });
+
+    test('activeThemeIndex defaults to 0 for airbrush', () {
+      controller.setActiveBrush(BrushType.airbrush);
+      expect(controller.activeThemeIndex, 0);
+    });
+
+    test('activeThemeIndex defaults to 0 for pattern', () {
+      controller.setActiveBrush(BrushType.pattern);
+      expect(controller.activeThemeIndex, 0);
+    });
+
+    test('setActiveTheme updates airbrush index independently', () {
+      controller.setActiveBrush(BrushType.airbrush);
+      controller.setActiveTheme(4);
+      expect(controller.activeThemeIndex, 4);
+
+      // switching to pattern should show its own index (still 0)
+      controller.setActiveBrush(BrushType.pattern);
+      expect(controller.activeThemeIndex, 0);
+
+      // switching back to airbrush restores 4
+      controller.setActiveBrush(BrushType.airbrush);
+      expect(controller.activeThemeIndex, 4);
+    });
+
+    test('setActiveTheme updates pattern index independently', () {
+      controller.setActiveBrush(BrushType.pattern);
+      controller.setActiveTheme(7);
+
+      controller.setActiveBrush(BrushType.airbrush);
+      controller.setActiveTheme(2);
+
+      controller.setActiveBrush(BrushType.pattern);
+      expect(controller.activeThemeIndex, 7);
+    });
+
+    test('startStroke sets themeIndex for airbrush', () {
+      controller.setActiveBrush(BrushType.airbrush);
+      controller.setActiveTheme(3);
+      controller.startStroke(BrushType.airbrush, Colors.red, const Offset(0, 0));
+      expect(controller.currentStroke!.themeIndex, 3);
+    });
+
+    test('startStroke sets null themeIndex for pencil', () {
+      controller.setActiveBrush(BrushType.pencil);
+      controller.startStroke(BrushType.pencil, Colors.red, const Offset(0, 0));
+      expect(controller.currentStroke!.themeIndex, isNull);
+    });
+
+    test('startStroke sets null themeIndex for splatter', () {
+      controller.setActiveBrush(BrushType.splatter);
+      controller.startStroke(BrushType.splatter, Colors.red, const Offset(0, 0));
+      expect(controller.currentStroke!.themeIndex, isNull);
+    });
+
+    test('setActiveTheme notifies listeners', () {
+      controller.setActiveBrush(BrushType.airbrush);
+      var notified = false;
+      controller.addListener(() => notified = true);
+      controller.setActiveTheme(5);
+      expect(notified, isTrue);
+    });
   });
 }
