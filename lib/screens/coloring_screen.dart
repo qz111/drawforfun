@@ -130,52 +130,89 @@ class _ColoringScreenState extends State<ColoringScreen> {
                   ),
                 ),
 
-                // ── Bottom Panel ─────────────────────────────────────
-                ListenableBuilder(
-                  listenable: _controller,
-                  builder: (_, __) => Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: const BorderRadius.vertical(
-                          top: Radius.circular(AppRadius.button)),
-                      boxShadow: AppShadows.soft(AppColors.accentPrimary),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 10, horizontal: 12),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        BrushSelectorWidget(
-                          selectedBrush: _controller.activeBrushType,
-                          onBrushSelected: _controller.setActiveBrush,
+                // Bottom panel removed — now a DraggableScrollableSheet in the Stack
+              ],
+            ),
+
+            // ── Collapsible frosted bottom sheet ────────────────────────────────
+            DraggableScrollableSheet(
+              initialChildSize: 0.22,
+              minChildSize: 0.08,
+              maxChildSize: 0.38,
+              snap: true,
+              snapSizes: const [0.08, 0.22, 0.38],
+              builder: (context, _) {
+                // _ is the sheet's own ScrollController — unused since sheet content
+                // is not itself scrollable. Named _ to satisfy the linter.
+                return ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(28),
+                  ),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Color.fromRGBO(255, 255, 255, 0.78),
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(28),
                         ),
-                        const SizedBox(height: 10),
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 200),
-                          child: _controller.activeBrushType == BrushType.eraser
-                              ? EraserSizePickerWidget(
-                                  key: const ValueKey('eraser'),
-                                  selectedIndex: _controller.activeThemeIndex,
-                                  onSizeSelected: _controller.setActiveTheme,
-                                )
-                              : _isThemeBrush(_controller.activeBrushType)
-                                  ? ThemePickerWidget(
-                                      key: const ValueKey('theme'),
-                                      brushType: _controller.activeBrushType,
+                        boxShadow: AppShadows.frosted,
+                      ),
+                      child: ListenableBuilder(
+                        listenable: _controller,
+                        builder: (_, __) => Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Drag handle
+                            Padding(
+                              padding: const EdgeInsets.only(top: 10, bottom: 6),
+                              child: Container(
+                                width: 32,
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color: const Color.fromRGBO(0, 0, 0, 0.15),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                              ),
+                            ),
+
+                            // Brush selector row
+                            BrushSelectorWidget(
+                              selectedBrush: _controller.activeBrushType,
+                              onBrushSelected: _controller.setActiveBrush,
+                            ),
+                            const SizedBox(height: 10),
+
+                            // Palette / theme / eraser picker — unchanged logic
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              child: _controller.activeBrushType == BrushType.eraser
+                                  ? EraserSizePickerWidget(
+                                      key: const ValueKey('eraser'),
                                       selectedIndex: _controller.activeThemeIndex,
-                                      onThemeSelected: _controller.setActiveTheme,
+                                      onSizeSelected: _controller.setActiveTheme,
                                     )
-                                  : PaletteWidget(
-                                      key: const ValueKey('palette'),
-                                      selectedColor: _controller.activeColor,
-                                      onColorSelected: _controller.setActiveColor,
-                                    ),
+                                  : _isThemeBrush(_controller.activeBrushType)
+                                      ? ThemePickerWidget(
+                                          key: const ValueKey('theme'),
+                                          brushType: _controller.activeBrushType,
+                                          selectedIndex: _controller.activeThemeIndex,
+                                          onThemeSelected: _controller.setActiveTheme,
+                                        )
+                                      : PaletteWidget(
+                                          key: const ValueKey('palette'),
+                                          selectedColor: _controller.activeColor,
+                                          onColorSelected: _controller.setActiveColor,
+                                        ),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                );
+              },
             ),
 
             // ── Floating back button (top-left) ─────────────────────────────────
