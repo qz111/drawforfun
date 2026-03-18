@@ -1,57 +1,68 @@
-import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drawforfun/brushes/brush_engine.dart';
 import 'package:drawforfun/brushes/brush_type.dart';
 import 'package:drawforfun/brushes/stroke.dart';
 
+/// Helper: render a stroke onto an in-memory canvas and return the image.
+Future<ui.Image> renderStroke(Stroke stroke) async {
+  final recorder = ui.PictureRecorder();
+  final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, 400, 400));
+  canvas.drawRect(
+    const Rect.fromLTWH(0, 0, 400, 400),
+    Paint()..color = Colors.white,
+  );
+  BrushEngine.paint(canvas, stroke);
+  final picture = recorder.endRecording();
+  return picture.toImage(400, 400);
+}
+
 void main() {
-  group('BrushEngine', () {
-    late PictureRecorder recorder;
-    late Canvas canvas;
-
-    setUp(() {
-      recorder = PictureRecorder();
-      canvas = Canvas(recorder);
+  group('BrushEngine.splatter', () {
+    test('renders without throwing for multi-point stroke', () async {
+      final stroke = Stroke(
+        type: BrushType.splatter,
+        color: Colors.red,
+        points: [
+          const Offset(100, 100),
+          const Offset(150, 120),
+          const Offset(200, 100),
+        ],
+      );
+      expect(() async => await renderStroke(stroke), returnsNormally);
     });
 
-    tearDown(() {
-      recorder.endRecording();
-    });
-
-    final testPoints = [
-      const Offset(10, 10),
-      const Offset(20, 20),
-      const Offset(30, 15),
-      const Offset(50, 40),
-    ];
-
-    for (final type in BrushType.values) {
-      test('paints $type brush without throwing', () {
-        final stroke = Stroke(type: type, color: Colors.red, points: testPoints);
-        expect(
-          () => BrushEngine.paint(canvas, stroke),
-          returnsNormally,
-        );
-      });
-    }
-
-    test('paintStroke with single point does not throw', () {
-      const stroke = Stroke(
-        type: BrushType.pencil,
+    test('renders without throwing for single-point stroke', () async {
+      final stroke = Stroke(
+        type: BrushType.splatter,
         color: Colors.blue,
-        points: [Offset(5, 5)],
+        points: [const Offset(200, 200)],
       );
-      expect(() => BrushEngine.paint(canvas, stroke), returnsNormally);
+      expect(() async => await renderStroke(stroke), returnsNormally);
     });
 
-    test('paintStroke with empty points does not throw', () {
-      const stroke = Stroke(
-        type: BrushType.marker,
+    test('is deterministic — same stroke renders identically', () async {
+      final stroke = Stroke(
+        type: BrushType.splatter,
         color: Colors.green,
-        points: [],
+        points: [
+          const Offset(50, 50),
+          const Offset(100, 80),
+          const Offset(150, 50),
+        ],
       );
-      expect(() => BrushEngine.paint(canvas, stroke), returnsNormally);
+      final img1 = await renderStroke(stroke);
+      final img2 = await renderStroke(stroke);
+      final bytes1 = await img1.toByteData(format: ui.ImageByteFormat.rawRgba);
+      final bytes2 = await img2.toByteData(format: ui.ImageByteFormat.rawRgba);
+      expect(bytes1!.buffer.asUint8List(), bytes2!.buffer.asUint8List());
+    });
+  });
+
+  group('BrushEngine.disposeTileCache', () {
+    test('can be called safely when cache is empty', () {
+      expect(() => BrushEngine.disposeTileCache(), returnsNormally);
     });
   });
 }

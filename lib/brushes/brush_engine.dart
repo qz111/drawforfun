@@ -7,7 +7,9 @@ import 'stroke.dart';
 class BrushEngine {
   BrushEngine._();
 
-  // Stub — full implementation added in Task 6 (Pattern brush upgrade).
+  /// Releases all cached pattern tile images (GPU texture memory).
+  /// Call from CanvasController.dispose().
+  /// Full implementation with caching added in Task 6.
   static void disposeTileCache() {}
 
   /// Entry point: dispatches to the correct brush painter.
@@ -148,27 +150,75 @@ class BrushEngine {
   }
 
   // ---------------------------------------------------------------------------
-  // SPLATTER — random dots scattered around each touch point
+  // SPLATTER — thick central blob + directional opaque droplets
   // ---------------------------------------------------------------------------
   static void _paintSplatter(Canvas canvas, Stroke stroke) {
-    final rng = Random(stroke.hashCode);  // deterministic per stroke
-    for (final point in stroke.points) {
-      if (rng.nextInt(3) != 0) continue;
+    final rng = Random(stroke.hashCode);
 
-      final dotCount = 8 + rng.nextInt(7);
-      for (int i = 0; i < dotCount; i++) {
+    // Single point: circle + 3 radial droplets
+    if (stroke.points.length < 2) {
+      canvas.drawCircle(
+        stroke.points.first,
+        8.0,
+        Paint()..color = stroke.color,
+      );
+      for (int i = 0; i < 3; i++) {
         final angle = rng.nextDouble() * 2 * pi;
-        final distance = 8 + rng.nextDouble() * 30;
-        final dotOffset = Offset(
-          point.dx + distance * cos(angle),
-          point.dy + distance * sin(angle),
-        );
-        final dotRadius = 1.5 + rng.nextDouble() * 3.0;
-        final opacity = 0.6 + rng.nextDouble() * 0.3;
+        final dist = 6.0 + rng.nextDouble() * 10.0;
         canvas.drawCircle(
-          dotOffset,
-          dotRadius,
-          Paint()..color = stroke.color.withValues(alpha: opacity),
+          stroke.points.first + Offset(cos(angle) * dist, sin(angle) * dist),
+          2.0 + rng.nextDouble() * 3.0,
+          Paint()..color = stroke.color,
+        );
+      }
+      return;
+    }
+
+    // Central blob path
+    final blobPath = Path()
+      ..moveTo(stroke.points.first.dx, stroke.points.first.dy);
+    for (int i = 1; i < stroke.points.length; i++) {
+      blobPath.lineTo(stroke.points[i].dx, stroke.points[i].dy);
+    }
+    canvas.drawPath(
+      blobPath,
+      Paint()
+        ..color = stroke.color
+        ..strokeWidth = 12.0
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..style = PaintingStyle.stroke,
+    );
+
+    // Directional droplets per segment
+    for (int i = 0; i < stroke.points.length - 1; i++) {
+      final p1 = stroke.points[i];
+      final p2 = stroke.points[i + 1];
+      final delta = p2 - p1;
+      final dist = delta.distance;
+      if (dist == 0) continue;
+
+      final dirAngle = atan2(delta.dy, delta.dx);
+      final dropCount = 6 + rng.nextInt(9); // 6–14
+
+      for (int d = 0; d < dropCount; d++) {
+        // 60% forward cone (±60°), 40% side spread (±120°)
+        final double spreadAngle;
+        if (rng.nextDouble() < 0.6) {
+          spreadAngle = dirAngle + (rng.nextDouble() - 0.5) * (2 * pi / 3);
+        } else {
+          spreadAngle = dirAngle + (rng.nextDouble() - 0.5) * (4 * pi / 3);
+        }
+        final dropDist = 5.0 + rng.nextDouble() * 20.0;
+        final dropRadius = 2.0 + rng.nextDouble() * 6.0;
+        final dropCenter = p1 + Offset(
+          cos(spreadAngle) * dropDist,
+          sin(spreadAngle) * dropDist,
+        );
+        canvas.drawCircle(
+          dropCenter,
+          dropRadius,
+          Paint()..color = stroke.color,
         );
       }
     }
