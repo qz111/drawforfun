@@ -7,10 +7,16 @@ class Stroke {
   final Color color;
   final List<Offset> points;
 
+  /// Theme index (0–9) for airbrush and pattern brushes.
+  /// Null for color-based brushes (pencil, marker, splatter).
+  /// When non-null, BrushEngine ignores [color] and uses the theme instead.
+  final int? themeIndex;
+
   const Stroke({
     required this.type,
     required this.color,
     required this.points,
+    this.themeIndex,
   });
 
   /// Returns a new Stroke with [point] appended to the points list.
@@ -19,6 +25,7 @@ class Stroke {
       type: type,
       color: color,
       points: [...points, point],
+      themeIndex: themeIndex,
     );
   }
 
@@ -30,6 +37,7 @@ class Stroke {
         'points': points
             .map((p) => {'dx': p.dx, 'dy': p.dy})
             .toList(),
+        'themeIndex': themeIndex,
       };
 
   /// Restores a [Stroke] from the map produced by [toJson].
@@ -43,5 +51,6 @@ class Stroke {
                   (p['dy'] as num).toDouble(),
                 ))
             .toList(),
+        themeIndex: json['themeIndex'] as int?,
       );
 }
