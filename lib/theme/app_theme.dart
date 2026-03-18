@@ -19,6 +19,7 @@ abstract class AppColors {
   static const accentSecondary = Color(0xFFF472B6); // soft candy-pink
   static const accentMint      = Color(0xFF34D399); // mint actions
   static const accentPeach     = Color(0xFFFDBA74); // warm peach
+  static const accentMintLight = Color(0xFFA5F3D0); // button gradient start
 
   // ── Surface (frosted glass) ──────────────────────────────────────────────
   // Use Color.fromRGBO for alpha — never CSS rgba strings in Dart
@@ -104,9 +105,9 @@ abstract class AppGradients {
   // Global app background — 3-stop mint → ice-blue → candy-pink
   static const magicalSky = LinearGradient(
     colors: [
-      Color(0xFFAAFFD4),
-      Color(0xFFC8F0FF),
-      Color(0xFFFFD6F5),
+      AppColors.gradientStart,
+      AppColors.gradientMid,
+      AppColors.gradientEnd,
     ],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
@@ -114,7 +115,7 @@ abstract class AppGradients {
 
   // Primary CTA buttons
   static const primaryButton = LinearGradient(
-    colors: [Color(0xFFA5F3D0), Color(0xFF7C6FF7)],
+    colors: [AppColors.accentMintLight, AppColors.accentPrimary],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -183,6 +184,7 @@ abstract class AppTheme {
     );
   }
 
+  // TODO Phase 3: remove this method and switch callers to floating buttons
   /// Returns a branded gradient [AppBar]. Use on every screen for consistency.
   static AppBar gradientAppBar({
     required String title,
