@@ -22,7 +22,7 @@ void main() {
       expect(restored.points[1].dy, 4.5);
     });
 
-    test('roundtrips all 5 brush types', () {
+    test('roundtrips all brush types', () {
       for (final brushType in BrushType.values) {
         final stroke = Stroke(
           type: brushType,

@@ -8,8 +8,9 @@ class Stroke {
   final List<Offset> points;
 
   /// Theme index (0–9) for airbrush and pattern brushes.
-  /// Null for color-based brushes (pencil, marker, splatter).
-  /// When non-null, BrushEngine ignores [color] and uses the theme instead.
+  /// For eraser strokes, encodes size: 0 = Small, 1 = Medium, 2 = Large.
+  /// Null for other color-based brushes (pencil, marker, splatter).
+  /// When non-null, BrushEngine ignores [color] and uses the index instead.
   final int? themeIndex;
 
   const Stroke({

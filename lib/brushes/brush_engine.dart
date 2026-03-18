@@ -42,6 +42,8 @@ class BrushEngine {
       case BrushType.splatter:
         _paintSplatter(canvas, stroke);
         break;
+      case BrushType.eraser:
+        break; // handled by DrawingPainter before reaching BrushEngine — unreachable
     }
   }
 

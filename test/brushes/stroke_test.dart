@@ -5,13 +5,13 @@ import 'package:drawforfun/brushes/stroke.dart';
 
 void main() {
   group('BrushType', () {
-    test('has exactly 5 values', () {
-      expect(BrushType.values.length, 5);
+    test('has exactly 6 values', () {
+      expect(BrushType.values.length, 6);
     });
 
     test('contains all required brush names', () {
       final names = BrushType.values.map((e) => e.name).toSet();
-      expect(names, containsAll(['pencil', 'marker', 'airbrush', 'pattern', 'splatter']));
+      expect(names, containsAll(['pencil', 'marker', 'airbrush', 'pattern', 'splatter', 'eraser']));
     });
   });
 

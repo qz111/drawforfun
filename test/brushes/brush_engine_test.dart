@@ -168,4 +168,19 @@ void main() {
       expect(() => BrushEngine.disposeTileCache(), returnsNormally);
     });
   });
+
+  group('BrushEngine.eraser', () {
+    test('eraser stroke is a no-op — does not throw', () {
+      final recorder = ui.PictureRecorder();
+      final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, 400, 400));
+      final stroke = Stroke(
+        type: BrushType.eraser,
+        color: Colors.red,
+        points: const [Offset(100, 100), Offset(200, 200)],
+        themeIndex: 1,
+      );
+      expect(() => BrushEngine.paint(canvas, stroke), returnsNormally);
+      recorder.endRecording();
+    });
+  });
 }
