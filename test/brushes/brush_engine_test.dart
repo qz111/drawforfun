@@ -30,7 +30,7 @@ void main() {
           const Offset(200, 100),
         ],
       );
-      expect(() async => await renderStroke(stroke), returnsNormally);
+      await expectLater(() => renderStroke(stroke), returnsNormally);
     });
 
     test('renders without throwing for single-point stroke', () async {
@@ -39,7 +39,7 @@ void main() {
         color: Colors.blue,
         points: [const Offset(200, 200)],
       );
-      expect(() async => await renderStroke(stroke), returnsNormally);
+      await expectLater(() => renderStroke(stroke), returnsNormally);
     });
 
     test('is deterministic — same stroke renders identically', () async {

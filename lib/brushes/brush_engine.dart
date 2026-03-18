@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'brush_type.dart';
 import 'stroke.dart';
@@ -7,10 +8,18 @@ import 'stroke.dart';
 class BrushEngine {
   BrushEngine._();
 
+  // Pattern tile cache: lazily generated, session-scoped.
+  // ui.Image holds GPU texture — disposed via disposeTileCache().
+  static final Map<int, ui.Image> _tileCache = {};
+
   /// Releases all cached pattern tile images (GPU texture memory).
   /// Call from CanvasController.dispose().
-  /// Full implementation with caching added in Task 6.
-  static void disposeTileCache() {}
+  static void disposeTileCache() {
+    for (final image in _tileCache.values) {
+      image.dispose();
+    }
+    _tileCache.clear();
+  }
 
   /// Entry point: dispatches to the correct brush painter.
   static void paint(Canvas canvas, Stroke stroke) {
@@ -199,18 +208,19 @@ class BrushEngine {
       if (dist == 0) continue;
 
       final dirAngle = atan2(delta.dy, delta.dx);
-      final dropCount = 6 + rng.nextInt(9); // 6–14
+      final segRng = Random(stroke.hashCode + i);
+      final dropCount = 6 + segRng.nextInt(9); // 6–14
 
       for (int d = 0; d < dropCount; d++) {
         // 60% forward cone (±60°), 40% side spread (±120°)
         final double spreadAngle;
-        if (rng.nextDouble() < 0.6) {
-          spreadAngle = dirAngle + (rng.nextDouble() - 0.5) * (2 * pi / 3);
+        if (segRng.nextDouble() < 0.6) {
+          spreadAngle = dirAngle + (segRng.nextDouble() - 0.5) * (2 * pi / 3);
         } else {
-          spreadAngle = dirAngle + (rng.nextDouble() - 0.5) * (4 * pi / 3);
+          spreadAngle = dirAngle + (segRng.nextDouble() - 0.5) * (4 * pi / 3);
         }
-        final dropDist = 5.0 + rng.nextDouble() * 20.0;
-        final dropRadius = 2.0 + rng.nextDouble() * 6.0;
+        final dropDist = 5.0 + segRng.nextDouble() * 20.0;
+        final dropRadius = 2.0 + segRng.nextDouble() * 6.0;
         final dropCenter = p1 + Offset(
           cos(spreadAngle) * dropDist,
           sin(spreadAngle) * dropDist,
