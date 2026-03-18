@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'brush_theme.dart';
 import 'brush_type.dart';
 import 'stroke.dart';
 
@@ -96,22 +97,86 @@ class BrushEngine {
   }
 
   // ---------------------------------------------------------------------------
-  // AIRBRUSH — soft radial gradient dots accumulate at each point
+  // AIRBRUSH — opaque base stroke + emoji particles scattered along path
   // ---------------------------------------------------------------------------
   static void _paintAirbrush(Canvas canvas, Stroke stroke) {
-    const radius = 28.0;
-    for (final point in stroke.points) {
-      final rect = Rect.fromCircle(center: point, radius: radius);
-      final paint = Paint()
-        ..shader = RadialGradient(
-          colors: [
-            stroke.color.withValues(alpha: 0.10),
-            stroke.color.withValues(alpha: 0.0),
-          ],
-        ).createShader(rect)
-        ..blendMode = BlendMode.srcOver;
-      canvas.drawCircle(point, radius, paint);
+    final theme = BrushTheme.airbrushThemes[stroke.themeIndex ?? 0];
+    final rng = Random(stroke.hashCode);
+
+    // Single point
+    if (stroke.points.length < 2) {
+      canvas.drawCircle(
+        stroke.points.first,
+        12.0,
+        Paint()..color = theme.baseColor,
+      );
+      _paintEmoji(
+        canvas,
+        theme.emojis[0],
+        stroke.points.first - const Offset(0, 18),
+        16.0,
+        0.0,
+      );
+      return;
     }
+
+    // Base stroke — thick, fully opaque
+    final basePath = Path()
+      ..moveTo(stroke.points.first.dx, stroke.points.first.dy);
+    for (int i = 1; i < stroke.points.length; i++) {
+      basePath.lineTo(stroke.points[i].dx, stroke.points[i].dy);
+    }
+    canvas.drawPath(
+      basePath,
+      Paint()
+        ..color = theme.baseColor
+        ..strokeWidth = 20.0
+        ..strokeCap = StrokeCap.round
+        ..strokeJoin = StrokeJoin.round
+        ..style = PaintingStyle.stroke,
+    );
+
+    // Emoji particles every ~30px along path
+    double distAccum = 0.0;
+    const interval = 30.0;
+    int particleIndex = 0;
+
+    for (int i = 1; i < stroke.points.length; i++) {
+      final p1 = stroke.points[i - 1];
+      final p2 = stroke.points[i];
+      distAccum += (p2 - p1).distance;
+
+      if (distAccum >= interval) {
+        distAccum = 0.0;
+        final emojiIndex = (particleIndex + stroke.hashCode) % theme.emojis.length;
+        final fontSize = 14.0 + rng.nextDouble() * 8.0; // 14–22px
+        final rotation = (rng.nextDouble() - 0.5) * (pi / 3); // ±30°
+        final offsetX = (rng.nextDouble() - 0.5) * 30.0; // ±15px
+        final offsetY = (rng.nextDouble() - 0.5) * 30.0;
+        _paintEmoji(
+          canvas,
+          theme.emojis[emojiIndex],
+          p2 + Offset(offsetX, offsetY),
+          fontSize,
+          rotation,
+        );
+        particleIndex++;
+      }
+    }
+  }
+
+  /// Renders a single emoji at [center] with the given [fontSize] and [rotation] (radians).
+  static void _paintEmoji(Canvas canvas, String emoji, Offset center, double fontSize, double rotation) {
+    final tp = TextPainter(
+      text: TextSpan(text: emoji, style: TextStyle(fontSize: fontSize)),
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: double.infinity);
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(rotation);
+    tp.paint(canvas, Offset(-tp.width / 2, -tp.height / 2));
+    canvas.restore();
   }
 
   // ---------------------------------------------------------------------------

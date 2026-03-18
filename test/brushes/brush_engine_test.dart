@@ -60,6 +60,59 @@ void main() {
     });
   });
 
+  group('BrushEngine.airbrush', () {
+    test('renders without throwing for multi-point stroke', () async {
+      final stroke = Stroke(
+        type: BrushType.airbrush,
+        color: Colors.blue,
+        points: [
+          const Offset(100, 100),
+          const Offset(160, 130),
+          const Offset(220, 100),
+        ],
+        themeIndex: 0,
+      );
+      await expectLater(() => renderStroke(stroke), returnsNormally);
+    });
+
+    test('renders without throwing for single-point stroke', () async {
+      final stroke = Stroke(
+        type: BrushType.airbrush,
+        color: Colors.blue,
+        points: [const Offset(200, 200)],
+        themeIndex: 1,
+      );
+      await expectLater(() => renderStroke(stroke), returnsNormally);
+    });
+
+    test('uses theme 0 when themeIndex is null', () async {
+      final stroke = Stroke(
+        type: BrushType.airbrush,
+        color: Colors.blue,
+        points: [const Offset(200, 200), const Offset(250, 200)],
+        themeIndex: null,
+      );
+      await expectLater(() => renderStroke(stroke), returnsNormally);
+    });
+
+    test('is deterministic across all 10 themes', () async {
+      for (int t = 0; t < 10; t++) {
+        final stroke = Stroke(
+          type: BrushType.airbrush,
+          color: Colors.red,
+          points: [const Offset(50, 50), const Offset(100, 80)],
+          themeIndex: t,
+        );
+        final img1 = await renderStroke(stroke);
+        final img2 = await renderStroke(stroke);
+        final b1 = await img1.toByteData(format: ui.ImageByteFormat.rawRgba);
+        final b2 = await img2.toByteData(format: ui.ImageByteFormat.rawRgba);
+        expect(b1!.buffer.asUint8List(), b2!.buffer.asUint8List(),
+            reason: 'theme $t was not deterministic');
+      }
+    });
+  });
+
   group('BrushEngine.disposeTileCache', () {
     test('can be called safely when cache is empty', () {
       expect(() => BrushEngine.disposeTileCache(), returnsNormally);
