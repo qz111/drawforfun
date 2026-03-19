@@ -17,6 +17,8 @@ dependencies:
   provider: ^6.1.2
   flutter_svg: ^2.0.0
   google_fonts: ^6.2.1
+  video_player: ^2.11.1
+  fvp: ^0.35.2
 
 dev_dependencies:
   flutter_test:
@@ -28,9 +30,8 @@ flutter:
   uses-material-design: true
   assets:
     - assets/line_art/
-    # App icon source (1024×1024 PNG) — also consumed by flutter_launcher_icons.
-    # Uncomment once the asset file is placed at the path below:
-    # - assets/icon/
+    - assets/icon/
+    - assets/splash/
 
 # ── flutter_launcher_icons ────────────────────────────────────────────────────
 # Run after dropping assets/icon/app_icon.png (1024×1024, no rounded corners):
@@ -50,6 +51,8 @@ flutter_launcher_icons:
   web:
     generate: false
   windows:
-    generate: false
+    generate: true
+    image_path: "assets/icon/app_icon.png"
+    icon_size: 48
   macos:
     generate: false

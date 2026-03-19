@@ -112,7 +112,8 @@
       "Bash(python scripts/search.py \"candy pastel pop children vibrant\" --domain color -n 5)",
       "Bash(python scripts/search.py \"spring pop scale animation playful\" --domain ux -n 5)",
       "Bash(bash \"C:\\\\Users\\\\klose\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\5.0.5\\\\skills\\\\brainstorming\\\\scripts\\\\start-server.sh\" --project-dir \"D:\\\\developer_tools\\\\drawforfun\")",
-      "Bash(python scripts/search.py \"children coloring app magical playful vibrant flutter mobile\" --design-system -p \"DrawForFun\" -f markdown)"
+      "Bash(python scripts/search.py \"children coloring app magical playful vibrant flutter mobile\" --design-system -p \"DrawForFun\" -f markdown)",
+      "Bash(dart run:*)"
     ]
   },
   "enabledPlugins": {

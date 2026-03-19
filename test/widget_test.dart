@@ -18,25 +18,27 @@ void main() {
 
   testWidgets('App shows SplashScreen on launch', (tester) async {
     await tester.pumpWidget(const DrawForFunApp());
-    // One frame to kick off the fade-in animation and render the splash.
+    // One frame to render the splash (video init is async; static icon shows first).
     await tester.pump();
 
-    // Title is split across two lines in the Text widget.
+    // Title and tagline are always visible regardless of video state.
     expect(find.text('Magical Coloring\nWorld'), findsOneWidget);
     expect(find.text('Draw  \u2022  Color  \u2022  Dream'), findsOneWidget);
 
-    // Drain the 3-second navigator timer so no pending timers remain when the
-    // test ends (leaving pending timers is a test framework error).
-    await tester.pump(const Duration(seconds: 4));
+    // Drain the 8-second safety-timeout timer so no pending timers remain
+    // when the test ends (leaving pending timers is a test framework error).
+    await tester.pump(const Duration(seconds: 9));
     await tester.pump(); // settle the cross-fade frame
   });
 
-  testWidgets('SplashScreen navigates to MainMenuScreen after 3 s', (tester) async {
+  testWidgets('SplashScreen navigates to MainMenuScreen after safety timeout',
+      (tester) async {
     await tester.pumpWidget(const DrawForFunApp());
     await tester.pump(); // initial frame
 
-    // Advance past the 3-second delay + the 500 ms cross-fade.
-    await tester.pump(const Duration(milliseconds: 3600));
+    // In tests the video asset is unavailable, so the 8 s safety timeout fires.
+    // Advance past timeout + 500 ms cross-fade.
+    await tester.pump(const Duration(milliseconds: 8600));
 
     // MagicalSkyBackground has a repeating AnimationController that never
     // settles, so use pump() rather than pumpAndSettle().
