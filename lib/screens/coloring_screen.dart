@@ -140,7 +140,7 @@ class _ColoringScreenState extends State<ColoringScreen> {
                   ),
                 ),
 
-                // Bottom panel removed — now a DraggableScrollableSheet in the Stack
+                // Tools moved to right-side BrushRailWidget / OptionsStripWidget
               ],
             ),
 
