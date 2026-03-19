@@ -139,8 +139,8 @@ void main() {
 
   group('ContourCreatorPainter', () {
     test('shouldRepaint always returns true', () {
-      final painter = ContourCreatorPainter(
-        orderedStrokes: const [],
+      const painter = ContourCreatorPainter(
+        orderedStrokes: [],
         currentStroke: null,
         activeTool: ContourTool.pencil,
         backgroundImage: null,

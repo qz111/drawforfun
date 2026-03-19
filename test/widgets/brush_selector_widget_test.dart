@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drawforfun/brushes/brush_type.dart';
+import 'package:drawforfun/theme/app_theme.dart';
 import 'package:drawforfun/widgets/brush_selector_widget.dart';
 
 void main() {
@@ -52,7 +53,7 @@ void main() {
           ),
         ),
       );
-      // The 'Erase' tile container should carry deepPurple background.
+      // The 'Erase' tile container should carry accentPrimary highlight.
       final container = tester.widget<AnimatedContainer>(
         find.ancestor(
           of: find.text('Erase'),
@@ -60,7 +61,7 @@ void main() {
         ).first,
       );
       final decoration = container.decoration as BoxDecoration;
-      expect(decoration.color, Colors.deepPurple.shade100);
+      expect(decoration.color, AppColors.accentPrimary.withValues(alpha: 0.12));
     });
   });
 }

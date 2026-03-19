@@ -103,7 +103,16 @@
       "Bash(dart pub:*)",
       "Bash(echo checking... ls $APPDATA/../Local/Pub/Cache/hosted/pub.dev/)",
       "Bash(head -20 grep -rn \"SvgAssetLoader\\\\|loadPicture\" \"C:/Users/klose/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_svg-2.2.4/lib/\")",
-      "Bash(bash \"C:/Users/klose/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.5/skills/brainstorming/scripts/start-server.sh\" --project-dir \"D:/developer_tools/drawforfun\" 2>&1)"
+      "Bash(bash \"C:/Users/klose/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.5/skills/brainstorming/scripts/start-server.sh\" --project-dir \"D:/developer_tools/drawforfun\" 2>&1)",
+      "Bash(dart analyze:*)",
+      "Bash(python scripts/search.py \"children coloring creative entertainment playful vibrant magical candy\" --design-system -p \"DrawForFun\" -f markdown)",
+      "Bash(py --version)",
+      "Bash(python scripts/search.py \"children coloring app creative playful magical vibrant skeuomorphic candy\" --design-system -p \"DrawForFun\" -f markdown)",
+      "Bash(python scripts/search.py \"children coloring app magical cartoon iPad playful vibrant claymorphism\" --design-system -p \"DrawForFun\" -f markdown)",
+      "Bash(python scripts/search.py \"candy pastel pop children vibrant\" --domain color -n 5)",
+      "Bash(python scripts/search.py \"spring pop scale animation playful\" --domain ux -n 5)",
+      "Bash(bash \"C:\\\\Users\\\\klose\\\\.claude\\\\plugins\\\\cache\\\\claude-plugins-official\\\\superpowers\\\\5.0.5\\\\skills\\\\brainstorming\\\\scripts\\\\start-server.sh\" --project-dir \"D:\\\\developer_tools\\\\drawforfun\")",
+      "Bash(python scripts/search.py \"children coloring app magical playful vibrant flutter mobile\" --design-system -p \"DrawForFun\" -f markdown)"
     ]
   },
   "enabledPlugins": {

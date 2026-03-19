@@ -19,8 +19,15 @@ class MainMenuScreen extends StatelessWidget {
               children: [
                 // ── Gradient logo title ──────────────────────────────────
                 ShaderMask(
-                  shaderCallback: (bounds) =>
-                      AppGradients.magicalSky.createShader(bounds),
+                  shaderCallback: (bounds) => const LinearGradient(
+                    colors: [
+                      AppColors.accentPrimary,    // indigo-violet
+                      AppColors.accentSecondary,  // candy-pink
+                      AppColors.accentMint,       // mint
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ).createShader(bounds),
                   blendMode: BlendMode.srcIn,
                   child: Text(
                     '🎨 Draw For Fun',

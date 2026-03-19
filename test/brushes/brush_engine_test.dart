@@ -21,35 +21,35 @@ Future<ui.Image> renderStroke(Stroke stroke) async {
 void main() {
   group('BrushEngine.splatter', () {
     test('renders without throwing for multi-point stroke', () async {
-      final stroke = Stroke(
+      const stroke = Stroke(
         type: BrushType.splatter,
         color: Colors.red,
         points: [
-          const Offset(100, 100),
-          const Offset(150, 120),
-          const Offset(200, 100),
+          Offset(100, 100),
+          Offset(150, 120),
+          Offset(200, 100),
         ],
       );
       await expectLater(() => renderStroke(stroke), returnsNormally);
     });
 
     test('renders without throwing for single-point stroke', () async {
-      final stroke = Stroke(
+      const stroke = Stroke(
         type: BrushType.splatter,
         color: Colors.blue,
-        points: [const Offset(200, 200)],
+        points: [Offset(200, 200)],
       );
       await expectLater(() => renderStroke(stroke), returnsNormally);
     });
 
     test('is deterministic — same stroke renders identically', () async {
-      final stroke = Stroke(
+      const stroke = Stroke(
         type: BrushType.splatter,
         color: Colors.green,
         points: [
-          const Offset(50, 50),
-          const Offset(100, 80),
-          const Offset(150, 50),
+          Offset(50, 50),
+          Offset(100, 80),
+          Offset(150, 50),
         ],
       );
       final img1 = await renderStroke(stroke);
@@ -62,13 +62,13 @@ void main() {
 
   group('BrushEngine.airbrush', () {
     test('renders without throwing for multi-point stroke', () async {
-      final stroke = Stroke(
+      const stroke = Stroke(
         type: BrushType.airbrush,
         color: Colors.blue,
         points: [
-          const Offset(100, 100),
-          const Offset(160, 130),
-          const Offset(220, 100),
+          Offset(100, 100),
+          Offset(160, 130),
+          Offset(220, 100),
         ],
         themeIndex: 0,
       );
@@ -76,20 +76,20 @@ void main() {
     });
 
     test('renders without throwing for single-point stroke', () async {
-      final stroke = Stroke(
+      const stroke = Stroke(
         type: BrushType.airbrush,
         color: Colors.blue,
-        points: [const Offset(200, 200)],
+        points: [Offset(200, 200)],
         themeIndex: 1,
       );
       await expectLater(() => renderStroke(stroke), returnsNormally);
     });
 
     test('uses theme 0 when themeIndex is null', () async {
-      final stroke = Stroke(
+      const stroke = Stroke(
         type: BrushType.airbrush,
         color: Colors.blue,
-        points: [const Offset(200, 200), const Offset(250, 200)],
+        points: [Offset(200, 200), Offset(250, 200)],
         themeIndex: null,
       );
       await expectLater(() => renderStroke(stroke), returnsNormally);
@@ -173,10 +173,10 @@ void main() {
     test('eraser stroke is a no-op — does not throw', () {
       final recorder = ui.PictureRecorder();
       final canvas = Canvas(recorder, const Rect.fromLTWH(0, 0, 400, 400));
-      final stroke = Stroke(
+      const stroke = Stroke(
         type: BrushType.eraser,
         color: Colors.red,
-        points: const [Offset(100, 100), Offset(200, 200)],
+        points: [Offset(100, 100), Offset(200, 200)],
         themeIndex: 1,
       );
       expect(() => BrushEngine.paint(canvas, stroke), returnsNormally);

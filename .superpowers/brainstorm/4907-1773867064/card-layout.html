@@ -1,0 +1,144 @@
+<h2>Library Card Layout</h2>
+<p class="subtitle">Current cards are plain white rectangles — too pale for iPad. Which decorative card style feels right for a magical coloring app?</p>
+
+<div class="cards">
+
+  <!-- Option A: Sticker Frame Card -->
+  <div class="card" data-choice="sticker-frame" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:linear-gradient(150deg,#AAFFD4,#C8F0FF,#FFD6F5);padding:16px;display:flex;gap:10px;justify-content:center;align-items:flex-start;min-height:220px;">
+
+      <!-- Card 1 -->
+      <div style="width:110px;flex-shrink:0;background:white;border-radius:22px;box-shadow:0 6px 20px rgba(130,200,255,0.35);overflow:visible;position:relative;">
+        <!-- Top colored band -->
+        <div style="height:90px;background:linear-gradient(135deg,#AAFFD4,#67e8f9);border-radius:22px 22px 0 0;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <!-- Animal decoration peeking from top-right corner -->
+          <div style="position:absolute;top:-4px;right:-4px;font-size:26px;transform:rotate(15deg);">🌿</div>
+          <div style="position:absolute;bottom:-2px;left:6px;font-size:18px;">🌸</div>
+          <!-- Template placeholder -->
+          <div style="font-size:36px;">🐻</div>
+        </div>
+        <!-- Bottom label area -->
+        <div style="padding:8px 10px 10px;">
+          <div style="font-size:11px;font-weight:700;color:#1e293b;margin-bottom:3px;">Teddy Bear</div>
+          <div style="display:inline-block;background:linear-gradient(135deg,#a78bfa,#7c3aed);color:white;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;">● colored</div>
+        </div>
+        <!-- Flower sticker corner decoration -->
+        <div style="position:absolute;top:-8px;left:-8px;width:22px;height:22px;background:linear-gradient(135deg,#fbbf24,#f97316);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 2px 6px rgba(249,115,22,0.4);">🌼</div>
+      </div>
+
+      <!-- Card 2 -->
+      <div style="width:110px;flex-shrink:0;background:white;border-radius:22px;box-shadow:0 6px 20px rgba(255,160,220,0.3);overflow:visible;position:relative;margin-top:14px;">
+        <div style="height:90px;background:linear-gradient(135deg,#FFD6F5,#fca5a5);border-radius:22px 22px 0 0;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;">
+          <div style="position:absolute;top:-2px;right:2px;font-size:22px;transform:rotate(-10deg);">🌺</div>
+          <div style="position:absolute;bottom:-2px;right:10px;font-size:16px;">✨</div>
+          <div style="font-size:36px;opacity:0.35;">🐱</div>
+        </div>
+        <div style="padding:8px 10px 10px;">
+          <div style="font-size:11px;font-weight:700;color:#1e293b;margin-bottom:3px;">Kitten</div>
+          <div style="display:inline-block;background:#e2e8f0;color:#64748b;font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;">not started</div>
+        </div>
+        <div style="position:absolute;top:-8px;left:-8px;width:22px;height:22px;background:linear-gradient(135deg,#ec4899,#db2777);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 2px 6px rgba(219,39,119,0.4);">🌷</div>
+      </div>
+
+    </div>
+    <div class="card-body">
+      <h3>A — Sticker Frame + Gradient Top Band</h3>
+      <p>Each card has a soft gradient colour band at the top (colour-coded per animal/template). Tiny flower and leaf stickers peek from corners. The template emoji or thumbnail sits inside the band. Bottom: label + coloured status pill. Feels like a collectible sticker card.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Tall Illustrated Card -->
+  <div class="card" data-choice="tall-illustrated" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:linear-gradient(150deg,#AAFFD4,#C8F0FF,#FFD6F5);padding:16px;display:flex;gap:10px;justify-content:center;align-items:flex-start;min-height:220px;">
+
+      <!-- Card 1 -->
+      <div style="width:100px;flex-shrink:0;border-radius:24px;overflow:hidden;box-shadow:0 8px 24px rgba(100,200,255,0.4);position:relative;">
+        <!-- Full-card gradient bg -->
+        <div style="background:linear-gradient(170deg,#d1fae5,#a7f3d0,#6ee7b7);height:160px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <!-- Bottom grass decoration -->
+          <div style="position:absolute;bottom:0;left:0;right:0;height:28px;background:linear-gradient(180deg,transparent,rgba(34,197,94,0.25));display:flex;align-items:flex-end;justify-content:space-around;padding:0 4px;">
+            <span style="font-size:16px;">🌿</span>
+            <span style="font-size:14px;">🌱</span>
+            <span style="font-size:16px;">🌿</span>
+          </div>
+          <!-- Top sparkles -->
+          <div style="position:absolute;top:6px;right:8px;font-size:12px;">✨</div>
+          <div style="position:absolute;top:14px;left:8px;font-size:10px;">⭐</div>
+          <!-- Main character -->
+          <div style="font-size:44px;margin-bottom:8px;">🐸</div>
+        </div>
+        <!-- Label strip -->
+        <div style="background:white;padding:7px 8px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:#1e293b;">Froggy</div>
+          <div style="display:inline-block;background:linear-gradient(135deg,#22c55e,#16a34a);color:white;font-size:8px;font-weight:700;padding:1px 6px;border-radius:10px;margin-top:2px;">● colored</div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div style="width:100px;flex-shrink:0;border-radius:24px;overflow:hidden;box-shadow:0 8px 24px rgba(255,160,200,0.4);position:relative;margin-top:18px;">
+        <div style="background:linear-gradient(170deg,#fce7f3,#fbcfe8,#f9a8d4);height:160px;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+          <div style="position:absolute;bottom:0;left:0;right:0;height:28px;display:flex;align-items:flex-end;justify-content:space-around;padding:0 4px;">
+            <span style="font-size:14px;">🌸</span>
+            <span style="font-size:16px;">🌺</span>
+            <span style="font-size:14px;">🌸</span>
+          </div>
+          <div style="position:absolute;top:6px;right:8px;font-size:12px;">🌟</div>
+          <div style="font-size:44px;margin-bottom:8px;opacity:0.4;">🦋</div>
+        </div>
+        <div style="background:white;padding:7px 8px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:#1e293b;">Butterfly</div>
+          <div style="display:inline-block;background:#f1f5f9;color:#94a3b8;font-size:8px;font-weight:600;padding:1px 6px;border-radius:10px;margin-top:2px;">not started</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="card-body">
+      <h3>B — Full Illustrated Card (ecosystem theme)</h3>
+      <p>The entire card back is a lush gradient matching the animal's world — greens for forest animals, pinks for butterflies, blues for fish. Tiny plant/flower decorations grow from the bottom edge. The animal emoji sits large in the centre. Each card tells a mini-story.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Polaroid + Washi Tape -->
+  <div class="card" data-choice="polaroid-washi" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:linear-gradient(150deg,#AAFFD4,#C8F0FF,#FFD6F5);padding:20px 16px;display:flex;gap:12px;justify-content:center;align-items:center;min-height:220px;">
+
+      <!-- Card 1 — tilted polaroid -->
+      <div style="width:100px;background:white;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.15);transform:rotate(-4deg);position:relative;">
+        <!-- Washi tape top -->
+        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:44px;height:18px;background:linear-gradient(135deg,rgba(167,139,250,0.7),rgba(196,181,253,0.7));border-radius:3px;opacity:0.9;"></div>
+        <div style="height:100px;background:linear-gradient(135deg,#d1fae5,#a7f3d0);border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;">
+          <div style="position:absolute;bottom:2px;left:4px;font-size:14px;">🌿</div>
+          <div style="position:absolute;top:4px;right:4px;font-size:12px;">🌸</div>
+          <div style="font-size:38px;">🐼</div>
+        </div>
+        <div style="padding:8px 6px 12px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:#374151;font-family:serif;">Panda</div>
+          <div style="font-size:8px;color:#22c55e;font-weight:600;margin-top:2px;">● done!</div>
+        </div>
+      </div>
+
+      <!-- Card 2 — opposite tilt -->
+      <div style="width:100px;background:white;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.15);transform:rotate(3deg);position:relative;margin-top:-10px;">
+        <!-- Washi tape top — different colour -->
+        <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);width:44px;height:18px;background:linear-gradient(135deg,rgba(251,191,36,0.7),rgba(253,224,71,0.7));border-radius:3px;opacity:0.9;"></div>
+        <div style="height:100px;background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:8px 8px 0 0;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+          <div style="position:absolute;bottom:0;left:2px;font-size:16px;">🌻</div>
+          <div style="position:absolute;top:4px;right:4px;font-size:11px;">✨</div>
+          <div style="font-size:38px;opacity:0.35;">🦁</div>
+        </div>
+        <div style="padding:8px 6px 12px;text-align:center;">
+          <div style="font-size:11px;font-weight:700;color:#374151;font-family:serif;">Lion</div>
+          <div style="font-size:8px;color:#94a3b8;font-weight:600;margin-top:2px;">not started</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="card-body">
+      <h3>C — Polaroid + Washi Tape</h3>
+      <p>Cards look like physical polaroid photos pinned with colourful washi tape at the top. Slightly tilted at alternating angles for a playful, handmade feel. Plant/flower details peek from corners. Very tactile and scrapbook-like — great for creative kids.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px;">At <strong>http://localhost:64588</strong> — all three work on iPad. Click your favourite, or mix and match in the terminal.</p>

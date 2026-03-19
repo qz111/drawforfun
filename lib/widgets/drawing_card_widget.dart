@@ -2,6 +2,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../persistence/drawing_entry.dart';
+import '../theme/app_theme.dart';
+import 'clay_ink_well.dart';
 
 /// A tappable card showing a drawing's thumbnail (or placeholder if not started).
 ///
@@ -39,41 +41,35 @@ class DrawingCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        GestureDetector(
+        ClayInkWell(
           onTap: onTap,
           onLongPress: onLongPress,
           child: Container(
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              borderRadius: BorderRadius.circular(AppRadius.card),
+              boxShadow: AppShadows.soft(AppColors.accentPrimary),
             ),
             child: Column(
               children: [
                 Expanded(
                   child: ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(14)),
+                    borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(AppRadius.card)),
                     child: _buildThumbnail(),
                   ),
                 ),
                 Padding(
                   padding:
-                      const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
                   child: Column(
                     children: [
                       Text(
                         label,
                         style: const TextStyle(
                           fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -84,8 +80,8 @@ class DrawingCardWidget extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 10,
                           color: hasThumbnail
-                              ? Colors.deepPurple.shade300
-                              : Colors.grey.shade400,
+                              ? AppColors.accentPrimary
+                              : AppColors.textMuted,
                         ),
                       ),
                     ],
@@ -97,20 +93,21 @@ class DrawingCardWidget extends StatelessWidget {
         ),
         if (onDelete != null)
           Positioned(
-            top: 6,
-            right: 6,
+            top: 8,
+            right: 8,
             child: GestureDetector(
               onTap: onDelete,
               child: Container(
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(5),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.85),
-                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white.withValues(alpha: 0.92),
+                  borderRadius: BorderRadius.circular(AppRadius.small),
+                  boxShadow: AppShadows.soft(AppColors.danger),
                 ),
                 child: const Icon(
                   Icons.delete_outline,
                   size: 18,
-                  color: Colors.redAccent,
+                  color: AppColors.danger,
                 ),
               ),
             ),

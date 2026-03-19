@@ -16,13 +16,40 @@ dependencies:
   image_gallery_saver: ^2.0.3
   provider: ^6.1.2
   flutter_svg: ^2.0.0
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.14.3
 
 flutter:
   uses-material-design: true
   assets:
     - assets/line_art/
+    # App icon source (1024×1024 PNG) — also consumed by flutter_launcher_icons.
+    # Uncomment once the asset file is placed at the path below:
+    # - assets/icon/
+
+# ── flutter_launcher_icons ────────────────────────────────────────────────────
+# Run after dropping assets/icon/app_icon.png (1024×1024, no rounded corners):
+#   flutter pub get
+#   dart run flutter_launcher_icons
+#
+# The tool generates all required iPad/iPhone/Android icon sizes from the
+# single source PNG and writes them into the native project directories.
+flutter_launcher_icons:
+  android: true
+  ios: true
+  # Path to the hi-res source PNG (place file here first).
+  image_path: "assets/icon/app_icon.png"
+  # iOS-specific: remove the alpha channel so Xcode accepts it.
+  remove_alpha_ios: true
+  # Minimum iOS version already set in Xcode — no override needed here.
+  web:
+    generate: false
+  windows:
+    generate: false
+  macos:
+    generate: false

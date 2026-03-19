@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../brushes/brush_type.dart';
+import '../theme/app_theme.dart';
+import 'clay_ink_well.dart';
 
-/// Row of 5 large brush selector buttons. No sliders — tap to select.
+/// Row of brush selector tiles. Tap to select; selected tile gets a clay
+/// shadow and accent border to communicate state clearly at a glance.
 class BrushSelectorWidget extends StatelessWidget {
   final BrushType selectedBrush;
   final ValueChanged<BrushType> onBrushSelected;
@@ -16,7 +19,7 @@ class BrushSelectorWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: BrushType.values.map((type) => _BrushButton(
+      children: BrushType.values.map((type) => _BrushTile(
         type: type,
         isSelected: type == selectedBrush,
         onTap: () => onBrushSelected(type),
@@ -25,12 +28,12 @@ class BrushSelectorWidget extends StatelessWidget {
   }
 }
 
-class _BrushButton extends StatelessWidget {
+class _BrushTile extends StatelessWidget {
   final BrushType type;
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _BrushButton({required this.type, required this.isSelected, required this.onTap});
+  const _BrushTile({required this.type, required this.isSelected, required this.onTap});
 
   static const _icons = {
     BrushType.pencil:   Icons.edit,
@@ -52,31 +55,40 @@ class _BrushButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return ClayInkWell(
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 150),
         width: 60,
         height: 70,
         decoration: BoxDecoration(
-          color: isSelected ? Colors.deepPurple.shade100 : Colors.grey.shade200,
-          borderRadius: BorderRadius.circular(16),
+          color: isSelected
+              ? AppColors.accentPrimary.withValues(alpha: 0.12)
+              : Colors.grey.shade100,
+          borderRadius: BorderRadius.circular(AppRadius.button),
           border: Border.all(
-            color: isSelected ? Colors.deepPurple : Colors.transparent,
+            color: isSelected ? AppColors.accentPrimary : Colors.transparent,
             width: 2.5,
           ),
+          boxShadow: isSelected
+              ? AppShadows.clay(AppColors.accentPrimary)
+              : null,
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(_icons[type]!, size: 28, color: isSelected ? Colors.deepPurple : Colors.grey.shade600),
+            Icon(
+              _icons[type]!,
+              size: 28,
+              color: isSelected ? AppColors.accentPrimary : AppColors.textMuted,
+            ),
             const SizedBox(height: 4),
             Text(
               _labels[type]!,
               style: TextStyle(
                 fontSize: 11,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.deepPurple : Colors.grey.shade600,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? AppColors.accentPrimary : AppColors.textMuted,
               ),
             ),
           ],
