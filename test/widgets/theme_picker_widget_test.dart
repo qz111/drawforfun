@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:drawforfun/brushes/brush_theme.dart';
 import 'package:drawforfun/brushes/brush_type.dart';
 import 'package:drawforfun/widgets/theme_picker_widget.dart';
 
 void main() {
   group('ThemePickerWidget', () {
-    testWidgets('shows label for airbrush theme 0', (tester) async {
+    testWidgets('horizontal default shows 10 tiles', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -21,17 +20,21 @@ void main() {
           ),
         ),
       );
-      expect(find.text(BrushTheme.airbrushThemes[0].label), findsOneWidget);
+      // ListView with horizontal scroll must be present.
+      final listView = tester.widget<ListView>(find.byType(ListView));
+      expect(listView.scrollDirection, Axis.horizontal);
     });
 
-    testWidgets('shows label for pattern style 0', (tester) async {
+    testWidgets('vertical axis uses vertical ListView', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: SizedBox(
-              height: 80,
+              width: 72,
+              height: 600,
               child: ThemePickerWidget(
-                brushType: BrushType.pattern,
+                axis: Axis.vertical,
+                brushType: BrushType.airbrush,
                 selectedIndex: 0,
                 onThemeSelected: (_) {},
               ),
@@ -39,17 +42,45 @@ void main() {
           ),
         ),
       );
-      expect(find.text(BrushTheme.patternStyles[0].label), findsOneWidget);
+      final listView = tester.widget<ListView>(find.byType(ListView));
+      expect(listView.scrollDirection, Axis.vertical);
     });
 
-    testWidgets('calls onThemeSelected when item tapped', (tester) async {
+    testWidgets('vertical axis tiles are 56x56', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 72,
+              height: 600,
+              child: ThemePickerWidget(
+                axis: Axis.vertical,
+                brushType: BrushType.airbrush,
+                selectedIndex: 0,
+                onThemeSelected: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      // First AnimatedContainer should be 56x56.
+      final containers = tester.widgetList<AnimatedContainer>(
+        find.byType(AnimatedContainer),
+      ).toList();
+      expect(containers.first.constraints?.maxWidth, 56.0);
+      expect(containers.first.constraints?.maxHeight, 56.0);
+    });
+
+    testWidgets('calls onThemeSelected when tapped', (tester) async {
       int? selected;
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
             body: SizedBox(
-              height: 80,
+              width: 72,
+              height: 600,
               child: ThemePickerWidget(
+                axis: Axis.vertical,
                 brushType: BrushType.airbrush,
                 selectedIndex: 0,
                 onThemeSelected: (i) => selected = i,
@@ -58,7 +89,7 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.text(BrushTheme.airbrushThemes[0].label));
+      await tester.tap(find.byType(AnimatedContainer).first);
       expect(selected, 0);
     });
   });
