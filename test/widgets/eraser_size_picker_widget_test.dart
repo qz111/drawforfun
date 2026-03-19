@@ -119,5 +119,26 @@ void main() {
       );
       expect(container.constraints?.maxHeight, 64.0);
     });
+
+    testWidgets('vertical axis calls onSizeSelected with correct index when tapped', (tester) async {
+      int? tapped;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 72,
+              height: 300,
+              child: EraserSizePickerWidget(
+                axis: Axis.vertical,
+                selectedIndex: 0,
+                onSizeSelected: (i) => tapped = i,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('M'));
+      expect(tapped, 1);
+    });
   });
 }
