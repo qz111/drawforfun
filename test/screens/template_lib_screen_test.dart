@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drawforfun/persistence/drawing_repository.dart';
 import 'package:drawforfun/screens/template_lib_screen.dart';
-import 'package:drawforfun/widgets/drawing_card_widget.dart';
+import 'package:drawforfun/widgets/polaroid_card_widget.dart';
 
 void main() {
   late Directory tempDir;
@@ -114,8 +114,8 @@ void main() {
       (tester) async {
     await tester.pumpWidget(const MaterialApp(home: TemplateLibScreen()));
     await tester.pumpAndSettle();
-    // Long-press the first DrawingCardWidget (a built-in template)
-    await tester.longPress(find.byType(DrawingCardWidget).first);
+    // Long-press the first PolaroidCardWidget (a built-in template)
+    await tester.longPress(find.byType(PolaroidCardWidget).first);
     await tester.pumpAndSettle();
     expect(find.text('Color it!'), findsOneWidget);
     expect(find.text('Remix it'), findsOneWidget);
@@ -125,7 +125,7 @@ void main() {
       (tester) async {
     await tester.pumpWidget(const MaterialApp(home: TemplateLibScreen()));
     await tester.pumpAndSettle();
-    await tester.longPress(find.byType(DrawingCardWidget).first);
+    await tester.longPress(find.byType(PolaroidCardWidget).first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Color it!'));
     await tester.pumpAndSettle();

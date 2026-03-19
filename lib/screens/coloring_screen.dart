@@ -2,19 +2,17 @@ import 'dart:ui';
 
 import 'package:drawforfun/brushes/brush_type.dart';
 
+import '../widgets/brush_rail_widget.dart';
 import '../widgets/clay_ink_well.dart';
-import '../widgets/eraser_size_picker_widget.dart';
-import '../widgets/theme_picker_widget.dart';
+import '../widgets/options_strip_widget.dart';
 import 'package:flutter/material.dart';
 import '../brushes/stroke.dart';
 import '../canvas/canvas_controller.dart';
 import '../canvas/canvas_stack_widget.dart';
-import '../palette/palette_widget.dart';
 import '../persistence/drawing_entry.dart';
 import '../persistence/drawing_repository.dart';
 import '../save/save_manager.dart';
 import '../theme/app_theme.dart';
-import '../widgets/brush_selector_widget.dart';
 
 class ColoringScreen extends StatefulWidget {
   final DrawingEntry entry;
@@ -29,6 +27,7 @@ class _ColoringScreenState extends State<ColoringScreen> {
   final _controller = CanvasController();
   final _repaintKey = GlobalKey();
   bool _isSaving = false;
+  bool _isStripOpen = false;
 
   @override
   void initState() {
@@ -92,6 +91,17 @@ class _ColoringScreenState extends State<ColoringScreen> {
     }
   }
 
+  void _handleBrushSelected(BrushType type) {
+    setState(() {
+      _controller.setActiveBrush(type);
+      _isStripOpen = true; // always open strip when switching to a new brush
+    });
+  }
+
+  void _handleToggleStrip() {
+    setState(() => _isStripOpen = !_isStripOpen);
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -132,87 +142,6 @@ class _ColoringScreenState extends State<ColoringScreen> {
 
                 // Bottom panel removed — now a DraggableScrollableSheet in the Stack
               ],
-            ),
-
-            // ── Collapsible frosted bottom sheet ────────────────────────────────
-            DraggableScrollableSheet(
-              initialChildSize: 0.22,
-              minChildSize: 0.08,
-              maxChildSize: 0.38,
-              snap: true,
-              snapSizes: const [0.08, 0.22, 0.38],
-              builder: (context, _) {
-                // _ is the sheet's own ScrollController — unused since sheet content
-                // is not itself scrollable. Named _ to satisfy the linter.
-                return ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(28),
-                  ),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Color.fromRGBO(255, 255, 255, 0.78),
-                        borderRadius: BorderRadius.vertical(
-                          top: Radius.circular(28),
-                        ),
-                        boxShadow: AppShadows.frosted,
-                      ),
-                      child: ListenableBuilder(
-                        listenable: _controller,
-                        builder: (_, __) => Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Drag handle
-                            Padding(
-                              padding: const EdgeInsets.only(top: 10, bottom: 6),
-                              child: Container(
-                                width: 32,
-                                height: 4,
-                                decoration: BoxDecoration(
-                                  color: const Color.fromRGBO(0, 0, 0, 0.15),
-                                  borderRadius: BorderRadius.circular(2),
-                                ),
-                              ),
-                            ),
-
-                            // Brush selector row
-                            BrushSelectorWidget(
-                              selectedBrush: _controller.activeBrushType,
-                              onBrushSelected: _controller.setActiveBrush,
-                            ),
-                            const SizedBox(height: 10),
-
-                            // Palette / theme / eraser picker — unchanged logic
-                            AnimatedSwitcher(
-                              duration: const Duration(milliseconds: 200),
-                              child: _controller.activeBrushType == BrushType.eraser
-                                  ? EraserSizePickerWidget(
-                                      key: const ValueKey('eraser'),
-                                      selectedIndex: _controller.activeThemeIndex,
-                                      onSizeSelected: _controller.setActiveTheme,
-                                    )
-                                  : _isThemeBrush(_controller.activeBrushType)
-                                      ? ThemePickerWidget(
-                                          key: const ValueKey('theme'),
-                                          brushType: _controller.activeBrushType,
-                                          selectedIndex: _controller.activeThemeIndex,
-                                          onThemeSelected: _controller.setActiveTheme,
-                                        )
-                                      : PaletteWidget(
-                                          key: const ValueKey('palette'),
-                                          selectedColor: _controller.activeColor,
-                                          onColorSelected: _controller.setActiveColor,
-                                        ),
-                            ),
-                            const SizedBox(height: 8),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                );
-              },
             ),
 
             // ── Floating back button (top-left) ─────────────────────────────────
@@ -270,6 +199,39 @@ class _ColoringScreenState extends State<ColoringScreen> {
                 color: Color(0x55000000),
                 child: Center(child: CircularProgressIndicator()),
               ),
+
+            // ── Right-side brush rail + options strip ──────────────────
+            ListenableBuilder(
+              listenable: _controller,
+              builder: (context, _) {
+                final topOffset = MediaQuery.of(context).padding.top + 76.0;
+                return Stack(
+                  children: [
+                    Positioned(
+                      right: 0,
+                      top: topOffset,
+                      bottom: 0,
+                      child: BrushRailWidget(
+                        selectedBrush: _controller.activeBrushType,
+                        isStripOpen: _isStripOpen,
+                        onBrushSelected: _handleBrushSelected,
+                        onToggleStrip: _handleToggleStrip,
+                      ),
+                    ),
+                    Positioned(
+                      right: 64,
+                      top: topOffset,
+                      bottom: 0,
+                      child: OptionsStripWidget(
+                        isVisible: _isStripOpen,
+                        activeBrush: _controller.activeBrushType,
+                        controller: _controller,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ],
         ),
       ),
@@ -302,9 +264,6 @@ class _ColoringScreenState extends State<ColoringScreen> {
       ),
     );
   }
-
-   bool _isThemeBrush(BrushType type) =>
-      type == BrushType.airbrush || type == BrushType.pattern;
 }
 
 class _FloatingCircleButton extends StatelessWidget {
