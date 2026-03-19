@@ -89,5 +89,20 @@ void main() {
       await tester.pump();
       expect(find.byType(ThemePickerWidget), findsOneWidget);
     });
+
+    testWidgets('pattern brush also shows ThemePickerWidget', (tester) async {
+      final ctrl = _controller();
+      await tester.pumpWidget(_wrap(SizedBox(
+        width: 72,
+        height: 600,
+        child: OptionsStripWidget(
+          isVisible: true,
+          activeBrush: BrushType.pattern,
+          controller: ctrl,
+        ),
+      )));
+      await tester.pump();
+      expect(find.byType(ThemePickerWidget), findsOneWidget);
+    });
   });
 }
