@@ -1,19 +1,41 @@
 import 'package:flutter/material.dart';
 import 'color_palette.dart';
 
-/// Grid of 24 color swatches + eraser. Calls [onColorSelected] on tap.
+/// Color swatch picker. Supports horizontal Wrap (default) and vertical ListView.
 class PaletteWidget extends StatelessWidget {
   final Color selectedColor;
   final ValueChanged<Color> onColorSelected;
+  final Axis axis;
 
   const PaletteWidget({
     super.key,
     required this.selectedColor,
     required this.onColorSelected,
+    this.axis = Axis.horizontal,
   });
 
   @override
   Widget build(BuildContext context) {
+    if (axis == Axis.vertical) {
+      // Vertical: single-column ListView, 24 swatches only (no eraser sentinel).
+      return ListView.separated(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        itemCount: ColorPalette.swatches.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        itemBuilder: (context, index) {
+          final color = ColorPalette.swatches[index];
+          return Center(
+            child: _ColorSwatch(
+              color: color,
+              isSelected: color == selectedColor,
+              onTap: () => onColorSelected(color),
+            ),
+          );
+        },
+      );
+    }
+
+    // Horizontal default: Wrap with eraser sentinel appended.
     final allColors = [...ColorPalette.swatches, ColorPalette.eraser];
     return Wrap(
       spacing: 8,
