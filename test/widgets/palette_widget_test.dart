@@ -60,7 +60,10 @@ void main() {
       );
       // One GestureDetector per swatch (eraser sentinel excluded).
       expect(
-        find.byType(GestureDetector),
+        find.descendant(
+          of: find.byType(PaletteWidget),
+          matching: find.byType(GestureDetector),
+        ),
         findsNWidgets(ColorPalette.swatches.length),
       );
     });
