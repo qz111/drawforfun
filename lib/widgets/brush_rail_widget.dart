@@ -8,6 +8,9 @@ import 'clay_ink_well.dart';
 /// Tapping the active brush calls [onToggleStrip]; tapping another calls [onBrushSelected].
 class BrushRailWidget extends StatelessWidget {
   final BrushType selectedBrush;
+  /// Whether the options strip is currently open. Passed through to the parent
+  /// so it can show/hide the OptionsStripWidget; the rail itself does not change
+  /// its appearance based on this value.
   final bool isStripOpen;
   final ValueChanged<BrushType> onBrushSelected;
   final VoidCallback onToggleStrip;

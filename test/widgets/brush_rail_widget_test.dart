@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drawforfun/brushes/brush_type.dart';
+import 'package:drawforfun/theme/app_theme.dart';
 import 'package:drawforfun/widgets/brush_rail_widget.dart';
 
 Widget _wrap(Widget child) => MaterialApp(home: Scaffold(body: child));
@@ -76,9 +77,7 @@ void main() {
         ),
       ));
       final icon = tester.widget<Icon>(find.byIcon(Icons.brush));
-      expect(icon.color, isNotNull);
-      // Color should differ from unselected (accent vs muted grey) — just check non-null.
-      expect(icon.color, isNot(equals(Colors.grey)));
+      expect(icon.color, AppColors.accentPrimary);
     });
   });
 }
